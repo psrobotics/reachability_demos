@@ -1,4 +1,6 @@
 function x1 = updateStateWithResetMap(obj, u, T, x0, d)
+
+% simulate and update the car state, with pre-defined reset map
 % x1 = updateState(obj, u, T, x0, d)
 % Updates state based on control
 %
@@ -58,7 +60,7 @@ end
 
 % Check whether there's disturbance (this is needed since not all vehicle
 % classes have dynamics that can handle disturbance)
-odeOpts = odeset('Events', @(t,x)dubins_reset_map_event(t,x));
+odeOpts = odeset('Events', @(t,x)dubins_reset_event(t,x));
     
 if isempty(d)
   [ts, x] = ode113(@(t,x) obj.dynamics(t, x, u), [0 T], x0, odeOpts);
@@ -69,31 +71,28 @@ end
 % Update the state, state history, control, and control history
 obj.u = u;
 
+% get current state, (last one)
 x1 = x(end, :)';
-[value_end, ~, ~] = dubins_reset_map_event(ts(end), x1);
+[value_end, ~, ~] = dubins_reset_event(ts(end), x1);
+
 if value_end < 0
     % Apply reset map
     xPost = zeros(3, 1);
-    if strcmp(obj.reset_map_type, 'identity')
-        xPost(1) = x1(1);
-    elseif strcmp(obj.reset_map_type, 'sqrt')
-        xPost(1) = sqrt(obj.R * (x1(1) + obj.R)) - obj.R;
-    elseif strcmp(obj.reset_map_type, 'diverge')
-        xPost(1) = (x1(1) + obj.R)^1.5/sqrt(obj.R) - obj.R;
-    elseif strcmp(obj.reset_map_type, 'parametrized')
+    % R pre-defined traj params
+    if strcmp(obj.reset_map_type, 'parametrized')
         xPost(1) = obj.R * ((x1(1) + obj.R)/obj.R)^obj.params.alpha - obj.R;
     else
         error("reset_map_type not supported.")
     end
-    
+    % y
     if x1(2) <= 0
-        xPost(2) = x1(2)+pi;
+        xPost(2) = x1(2) + pi;
     else
         xPost(2) = x1(2) - pi;
     end
-    
+    % heading alpha
     if x1(3) <= 0
-        xPost(3) = x1(3)+pi;
+        xPost(3) = x1(3) + pi;
     else
         xPost(3) = x1(3) - pi;
     end

@@ -1,7 +1,13 @@
 function dx = dynamics(obj, ~, x, u, ~)
-% State:    x_1 = \bar{r} (r - R), r is the first polar coord. of the car
+% ori State:    x_1 = \bar{r} (r - R), r is the first polar coord. of the car
 %           x_2 = alpha, the 2nd polar coord of the car.
 %           x_3 = theta, heading of the car
+
+% we're not using polar coord
+% dot_x_1 = v cos alpha
+% dot_x_2 = v sin alpha
+% dot alpha = u
+
 if iscell(x)
     dx = cell(length(obj.dims), 1);    
     for i = 1:length(obj.dims)
@@ -9,8 +15,8 @@ if iscell(x)
     end
 else
     dx = zeros(obj.nx, 1);
-    dx(1) = obj.v * cos(x(2) - x(3));
-    dx(2) = obj.v * sin(x(3) - x(2)) / (x(1) + obj.R);
+    dx(1) = obj.v * cos(x(3));
+    dx(2) = obj.v * sin(x(3));
     dx(3) = u;
 end
 
@@ -19,9 +25,9 @@ end
 function dx = dynamics_cell_helper(obj, x, u, dim)
 switch dim
     case 1
-        dx = obj.v * cos(x{obj.dims==2} - x{obj.dims==3});
+        dx = obj.v * cos(x{obj.dims==3});
     case 2
-        dx = obj.v * sin(x{obj.dims==3} - x{obj.dims==2}) ./ (x{obj.dims==1} + obj.R);
+        dx = obj.v * sin(x{obj.dims==3});
     case 3
         dx = u;
     otherwise

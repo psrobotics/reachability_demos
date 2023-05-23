@@ -1,15 +1,15 @@
-classdef ModifiedDubinsCar < DynSys
+classdef hybird_mod_dubins_car < DynSys
     properties
         uMax
         uMin        
         v
-        R
+        R % nonlinear params
         dims
         params
         reset_map_type
     end
     methods
-        function obj = ModifiedDubinsCar(dims, x, params, reset_map_type)
+        function obj = hybird_mod_dubins_car(dims, x, params, reset_map_type)
             if nargin < 1 || isempty(dims)
                 dims = 1:3;
             end

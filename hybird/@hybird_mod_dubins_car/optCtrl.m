@@ -1,5 +1,6 @@
 function uOpt = optCtrl(obj, ~, ~, deriv, uMode)
 
+% optimal bang bang control, kept the same
 
 if nargin < 5
     uMode = 'min';

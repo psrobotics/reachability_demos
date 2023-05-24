@@ -46,7 +46,7 @@ params.alpha = 1.0;
 schemeData.grid = grid;
 schemeData.uMode = 'min'; % control trying to min the cost fcn, reachable set
 
-schemeData.dynSys = hybird_mod_dubins_car([], [], params); % select dyn model
+schemeData.dynSys = hybird_mod_dubins_car([], [], params, 'parametrized'); % select dyn model
 
 schemeData.accuracy = 'high';
 schemeData.hamFunc = @genericHam;
@@ -76,18 +76,14 @@ schemeData.reset_map = get_reset_map_parametrized(grid, params);
 %% cal brt
 [data, tau, extraOuts] = ...
         HJIPDE_solve_with_reset_map(data0, tau, schemeData, 'minVWithL', HJIextraArgs);
-
+%% get optimal ctr
+derivatives = computeGradients(grid, data(:,:,:,end));
+safety_controller = schemeData.dynSys.optCtrl([], [], derivatives, 'min'); % min signed dist
+%%
 data_file_str = strcat('data_with_reset_map_alpha_', num2str(100*alpha));
 data_file_str = strcat(data_file_str, '_t_');
 data_file_str = strcat(data_file_str, num2str(t_max));
-save(strcat(data_file_str, '.mat'), 'grid', 'data0', 'params', 'data', 'tau'); % save data
-
-%% tar fcn load
-function target_function = load_target_function_from_h5(file_name)
-fid = H5F.open(file_name);
-dset_id = H5D.open(fid,'data');
-target_function = permute(H5D.read(dset_id), [3, 2, 1]);
-end
+save(strcat(data_file_str, '.mat'), 'grid', 'data0', 'params', 'data', 'tau', 'safety_controller'); % save data
 
 %% get rest map indector
 function reset_map = get_reset_map_parametrized(grid, params)

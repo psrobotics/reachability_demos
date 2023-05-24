@@ -74,8 +74,10 @@ obj.u = u;
 % get current state, (last one)
 x1 = x(end, :)';
 [value_end, ~, ~] = dubins_reset_event(ts(end), x1);
+fprintf('vll %d\n',value_end);
 
 if value_end < 0
+    fprintf('state_flip\n');
     % Apply reset map
     xPost = zeros(3, 1);
     % R pre-defined traj params
@@ -85,12 +87,11 @@ if value_end < 0
         error("reset_map_type not supported.")
     end
     % y
-    xPost(2) = -1 * x1(2);
-    % if x1(2) <= 0
-    %     xPost(2) = -1 * x1(2);
-    % else
-    %     xPost(2) = x1(2);
-    % end
+    if x1(2) <= 0
+        xPost(2) = -1 * x1(2);
+    else
+        xPost(2) = x1(2);
+    end
 
     % heading alpha
     if x1(3) <= 0
@@ -99,6 +100,7 @@ if value_end < 0
         xPost(3) = x1(3) - pi;
     end
     obj.x = xPost;
+    x1 = xPost; % copy fliped value 
 else
     obj.x = x1;
 end

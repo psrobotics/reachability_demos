@@ -8,6 +8,7 @@ addpath(genpath('D:\matlab_lib\ToolboxLS\'));
 R = 2;
 M = 40;
 params.grid_dx1 = 8 * R / (2 * M);
+params.grid_dx3 = 2*pi/(2*M);
 
 params.grid_min = [-4*R + params.grid_dx1; -4*R + params.grid_dx1; -pi];
 params.grid_max = [-4*R + params.grid_dx1*2*M; -4*R + params.grid_dx1*2*M; pi];
@@ -23,7 +24,7 @@ N_tmp = [N(1); N(2)];
 g_tmp = createGrid(g_tmp_min, g_tmp_max, N_tmp);
 
 target_area_r = 0.5;
-target_area_pos = [0;0];
+target_area_pos = [0;4];
 
 data0 = zeros(N);
 for i=1:N(3)
@@ -65,7 +66,7 @@ HJIextraArgs.visualize.deleteLastPlot = true; % delete previous plot as you upda
 %% sim time
 t0 = 0;
 dt = 0.1;
-t_max = 6;
+t_max = 3;
 tau = t0:dt:t_max;
 %data0 = target_function; % pre-defined target set value function (generated from python script)
 
@@ -77,27 +78,27 @@ schemeData.reset_map = get_reset_map_parametrized(grid, params);
 [data, tau, extraOuts] = ...
         HJIPDE_solve_with_reset_map(data0, tau, schemeData, 'minVWithL', HJIextraArgs);
 %% get optimal ctr
-derivatives = computeGradients(grid, data(:,:,:,end));
-safety_controller = schemeData.dynSys.optCtrl([], [], derivatives, 'min'); % min signed dist
+%derivatives = computeGradients(grid, data(:,:,:,end));
+%safety_controller = schemeData.dynSys.optCtrl([], [], derivatives, 'min'); % min signed dist
 %%
 data_file_str = strcat('data_with_reset_map_alpha_', num2str(100*alpha));
 data_file_str = strcat(data_file_str, '_t_');
 data_file_str = strcat(data_file_str, num2str(t_max));
-save(strcat(data_file_str, '.mat'), 'grid', 'data0', 'params', 'data', 'tau', 'safety_controller'); % save data
+save(strcat(data_file_str, '.mat'), 'grid', 'data0', 'params', 'data', 'tau'); % save data
 
 %% get rest map indector
 function reset_map = get_reset_map_parametrized(grid, params)
 
-    eps = 0.2; % *~0.2, based on grid resolution
+    eps = 1e-5; % *~0.2, based on grid resolution
     R = params.R;
     N = grid.N; % grid num vector
     M = N(3) / 2;
     ind = 1:prod(N); % how many elements in grid, = N(1)*N(2)*N(3)
     [I1, I2, I3] = ind2sub(N, ind); % generate 3d indector https://www.mathworks.com/help/matlab/ref/ind2sub.html
     
-    %idx_alpha_0  = find(grid.vs{2}==0); % when car hits y axis
+    idx_y_0  = find(abs(grid.vs{2}) < eps) % when car hits y axis
     %idx_alpha_pi = find(abs(grid.vs{2}-pi)<eps); % if grid value (2), = pi or 0, when y axis = 0
-    idx_y_0 = find(abs(grid.vs{2})<eps);
+    %idx_y_0 = find(abs(grid.vs{2})<eps);
 
     idx_theta = find(sin(grid.vs{3}) < -eps); % if robot heading down
     
@@ -113,22 +114,34 @@ function reset_map = get_reset_map_parametrized(grid, params)
             % keep y
             i2_post = i2;
             % theta to (theta + pi)
-            if i3 <= M %M
-                i3_post = i3 + M; % M=N/2 = pi/2
-            else
-                i3_post = i3 - M;
-            end
+            % if i3 <= M % M
+            %     i3_post = i3 + M; % M=N/2 = pi/2
+            % else
+            %     i3_post = i3 - M;
+            % end
             % change x
             x_bar_current = grid.vs{1}(i1) % get current x value
             alpha = params.alpha
             x_bar_post = -R*(abs(x_bar_current)/R)^alpha * sign(x_bar_current) % cal new x value
-            i1_post = ceil((x_bar_post - params.grid_min(1))/params.grid_dx1)% find new x index
+            i1_post = ceil((x_bar_post - params.grid_min(1))/params.grid_dx1) % find new x index
             if i1_post < 1
                 i1_post = 1;
             elseif i1_post > params.index_max(1)
                 i1_post = params.index_max(1);
             end
 
+            theta_bar_current = grid.vs{3}(i3) % get current x value
+            if theta_bar_current <= 0
+                theta_bar_current = theta_bar_current + pi
+            else
+                theta_bar_current = theta_bar_current - pi
+            end
+            i3_post = ceil((theta_bar_current - params.grid_min(3))/params.grid_dx3) % find new theta index
+            if i3_post < 1
+                i3_post = 1;
+            elseif i3_post > params.index_max(3)
+                i3_post = params.index_max(3);
+            end
             I1_reset(j) = i1_post;
             I2_reset(j) = i2_post;
             I3_reset(j) = i3_post;

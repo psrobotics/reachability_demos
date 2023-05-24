@@ -11,9 +11,9 @@ if ~iscell(deriv)
 end
 
 if strcmp(uMode, 'max')
-    uOpt = (deriv{obj.dims==3}>0) * obj.uMax + (deriv{obj.dims==3}<0) * obj.uMin;
+    uOpt = (deriv{obj.dims==3}>=0) * obj.uMax + (deriv{obj.dims==3}<0) * obj.uMin;
 elseif strcmp(uMode, 'min')
-    uOpt = (deriv{obj.dims==3}>0) * obj.uMin + (deriv{obj.dims==3}<0) * obj.uMax;
+    uOpt = (deriv{obj.dims==3}>=0) * obj.uMin + (deriv{obj.dims==3}<0) * obj.uMax;
 else
     error("Unknown uMode");
 end

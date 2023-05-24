@@ -87,11 +87,7 @@ if value_end < 0
         error("reset_map_type not supported.")
     end
     % y
-    if x1(2) <= 0
-        xPost(2) = -1 * x1(2);
-    else
-        xPost(2) = x1(2);
-    end
+    xPost(2) = x1(2);
 
     % heading alpha
     if x1(3) <= 0

@@ -4,21 +4,49 @@ close all
 addpath(genpath('D:\matlab_lib\helperOC\'));
 addpath(genpath('D:\matlab_lib\ToolboxLS\'));
 
+%% generate target fcn area
+R = 2;
+M = 40;
+params.grid_dx1 = 8 * R / (2 * M);
+
+params.grid_min = [-4*R + params.grid_dx1; -4*R + params.grid_dx1; -pi];
+params.grid_max = [-4*R + params.grid_dx1*2*M; -4*R + params.grid_dx1*2*M; pi];
+N = [2*M, 2*M, 2*M]; % M/2 corresponds to pi/2 for 3rd axes
+params.index_max = N;
+%pdDims = [2 3]; % ?
+grid = createGrid(params.grid_min, params.grid_max, N);
+
+% set 3d target fcn
+g_tmp_min = params.grid_min(1:2);
+g_tmp_max = params.grid_max(1:2);
+N_tmp = [N(1); N(2)];
+g_tmp = createGrid(g_tmp_min, g_tmp_max, N_tmp);
+
+target_area_r = 0.5;
+target_area_pos = [0;0];
+
+data0 = zeros(N);
+for i=1:N(3)
+    %ToolboxLS\Kernel\InitialConditions\SetOperations, Get combined shape
+    data0(:,:,i) = shapeSphere(g_tmp,target_area_pos,target_area_r);
+end
+
 %%
 params.v = 2; % forward_vel
 params.R = 2; % cycle_r
 params.u_bound = 1; % turning limit
+params.alpha = 1.0;
 
 %% Load target set and grid
-load('dubins_target_binary_hybrid')
+%load('dubins_target_binary_hybrid')
 % Load value function set
-target_function = load_target_function_from_h5('dubins_target_hybrid_fmm.h5');
+%target_function = data0;
 
 %% solver setup
 schemeData.grid = grid;
 schemeData.uMode = 'min'; % control trying to min the cost fcn, reachable set
 
-schemeData.dynSys = ModifiedDubinsCar([], [], params); % select dyn model
+schemeData.dynSys = hybird_mod_dubins_car([], [], params); % select dyn model
 
 schemeData.accuracy = 'high';
 schemeData.hamFunc = @genericHam;
@@ -27,24 +55,25 @@ schemeData.partialFunc = @genericPartial;
     getNumericalFuncs('global', schemeData.accuracy);
 
 HJIextraArgs.stopConverge = 1;
-HJIextraArgs.targetFunction = target_function;
+HJIextraArgs.targetFunction = data0;
 
 HJIextraArgs.visualize.valueSet = 1;
 HJIextraArgs.visualize.initialValueSet = 1;
 HJIextraArgs.visualize.figNum = 1; % set figure number
-HJIextraArgs.visualize.deleteLastPlot = false; % delete previous plot as you update
+HJIextraArgs.visualize.deleteLastPlot = true; % delete previous plot as you update
 
 %% sim time
 t0 = 0;
 dt = 0.1;
-t_max = 30;
+t_max = 3;
 tau = t0:dt:t_max;
-data0 = target_function; % pre-defined target set value function (generated from python script)
+%data0 = target_function; % pre-defined target set value function (generated from python script)
 
-alphs = 0.7; % nonlinear reset para
+alpha = params.alpha; % nonlinear reset para
 
-%% cal brt
+%% get reset map
 schemeData.reset_map = get_reset_map_parametrized(grid, params);
+%% cal brt
 [data, tau, extraOuts] = ...
         HJIPDE_solve_with_reset_map(data0, tau, schemeData, 'minVWithL', HJIextraArgs);
 
@@ -63,15 +92,16 @@ end
 %% get rest map indector
 function reset_map = get_reset_map_parametrized(grid, params)
 
-    eps = 1e-5;
+    eps = 0.2; % *~0.2, based on grid resolution
     R = params.R;
     N = grid.N; % grid num vector
     M = N(3) / 2;
     ind = 1:prod(N); % how many elements in grid, = N(1)*N(2)*N(3)
     [I1, I2, I3] = ind2sub(N, ind); % generate 3d indector https://www.mathworks.com/help/matlab/ref/ind2sub.html
     
-    idx_alpha_0  = find(grid.vs{2}==0);
-    idx_alpha_pi = find(abs(grid.vs{2}-pi)<eps); % if grid value (2), = pi or 0, when y axis = 0
+    %idx_alpha_0  = find(grid.vs{2}==0); % when car hits y axis
+    %idx_alpha_pi = find(abs(grid.vs{2}-pi)<eps); % if grid value (2), = pi or 0, when y axis = 0
+    idx_y_0 = find(abs(grid.vs{2})<eps);
 
     idx_theta = find(sin(grid.vs{3}) < -eps); % if robot heading down
     
@@ -83,23 +113,25 @@ function reset_map = get_reset_map_parametrized(grid, params)
         i1 = I1(j); % current element indector
         i2 = I2(j);
         i3 = I3(j);
-        if (any(i2 == idx_alpha_0) || any(i2 == idx_alpha_pi)) && any(idx_theta == i3)
-            % alpha to (alpha + pi)
-            if i2 == idx_alpha_0
-                i2_post = idx_alpha_pi; % switch the post indector
-            elseif i2 == idx_alpha_pi
-                i2_post = idx_alpha_0;
-            end
+        if any(i2 == idx_y_0) && any(i3 == idx_theta)
+            % keep y
+            i2_post = i2;
             % theta to (theta + pi)
-            if i3 <= M
+            if i3 <= M %M
                 i3_post = i3 + M; % M=N/2 = pi/2
             else
                 i3_post = i3 - M;
             end
-            r_bar_current = grid.vs{1}(i1);
-            alpha = params.reset_map_nonlinear_factor;
-            r_bar_post = R * ((r_bar_current + R)/R)^alpha - R;
-            [~, i1_post] = min(abs(grid.vs{1} - r_bar_post)); % swich the x indector based on switched x value
+            % change x
+            x_bar_current = grid.vs{1}(i1) % get current x value
+            alpha = params.alpha
+            x_bar_post = -R*(abs(x_bar_current)/R)^alpha * sign(x_bar_current) % cal new x value
+            i1_post = ceil((x_bar_post - params.grid_min(1))/params.grid_dx1)% find new x index
+            if i1_post < 1
+                i1_post = 1;
+            elseif i1_post > params.index_max(1)
+                i1_post = params.index_max(1);
+            end
 
             I1_reset(j) = i1_post;
             I2_reset(j) = i2_post;
@@ -107,4 +139,36 @@ function reset_map = get_reset_map_parametrized(grid, params)
         end        
     end
     reset_map = sub2ind(N, I1_reset, I2_reset, I3_reset); % switch back to 1d indector
+end
+
+function [dissFunc, integratorFunc, derivFunc] = getNumericalFuncs(dissType, accuracy)
+% Dissipation
+switch(dissType)
+    case 'global'
+        dissFunc = @artificialDissipationGLF;
+    case 'local'
+        dissFunc = @artificialDissipationLLF;
+    case 'locallocal'
+        dissFunc = @artificialDissipationLLLF;
+    otherwise
+        error('Unknown dissipation function %s', dissType);
+end
+
+% Accuracy
+switch(accuracy)
+    case 'low'
+        derivFunc = @upwindFirstFirst;
+        integratorFunc = @odeCFL1;
+    case 'medium'
+        derivFunc = @upwindFirstENO2;
+        integratorFunc = @odeCFL2;
+    case 'high'
+        derivFunc = @upwindFirstENO3;
+        integratorFunc = @odeCFL3;
+    case 'veryHigh'
+        derivFunc = @upwindFirstWENO5;
+        integratorFunc = @odeCFL3;
+    otherwise
+        error('Unknown accuracy level %s', accuracy);
+end
 end

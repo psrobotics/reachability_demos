@@ -33,7 +33,7 @@ end
 
 %%
 params.v = 2; % forward_vel
-params.R = 2; % cycle_r
+params.R = R; % cycle_r
 params.u_bound = 1; % turning limit
 params.alpha = 1.0;
 
@@ -65,7 +65,7 @@ HJIextraArgs.visualize.deleteLastPlot = true; % delete previous plot as you upda
 %% sim time
 t0 = 0;
 dt = 0.1;
-t_max = 3;
+t_max = 6;
 tau = t0:dt:t_max;
 %data0 = target_function; % pre-defined target set value function (generated from python script)
 

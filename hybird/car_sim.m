@@ -9,12 +9,12 @@ alpha = 1.0;
 % alpha = 1.0;
 
 data_file_str = strcat('data_with_reset_map_alpha_', num2str(100*alpha));
-data_file_str = strcat(data_file_str, '_t_6');
+data_file_str = strcat(data_file_str, '_t_3');
 load(data_file_str);
 params.alpha = alpha;
 
 %% init states, car system
-x0_original = [-4; 2; -pi/2];
+x0_original = [6; 1; -pi/2];
 dt = tau(2)-tau(1);
 
 dubins_car = hybird_mod_dubins_car([], x0_original, params, 'parametrized'); % select dyn model
@@ -23,6 +23,13 @@ x_arr = x0_original;
 t_arr = 0;
 
 %% sim process
+params.tar_pos = [0,4];
+params.tar_r = 0.5;
+
+[x_arr_tmp, ctr_arr_tmp, t_arr_tmp] =...
+    car_sim_single_traj(dubins_car, x0_original, grid, data, tau, params);
+
+%%
 for t_n = tau
     
     t_arr(end) = t_n;
@@ -38,8 +45,8 @@ for t_n = tau
           % tEarliest = find_earliest_BRS_ind(grid, data, x_curr, upper, lower)
           tEarliest = floor(tau(end)/dt);
           for it = 1:floor(tau(end)/dt)
-              valueAtX = eval_u(grid, data(:,:,:, it), x_curr)
-              if valueAtX<0
+              valueAtX = eval_u(grid, data(:,:,:, it), x_curr);
+              if valueAtX < 0
                   tEarliest = it;
                   break;
               end
@@ -67,29 +74,23 @@ end
 size_arr = size(x_arr);
 len = size_arr(2);
 
-%% overlay roa
-
-% hold on;
-% axis equal;
-% grid on;
-% view(0,90);
-% %view(90,0)
-% axis([-8,8,0,8,0,1.2]);
-% 
-% for x_i = -8:0.2:8
-%     for y_i = 0:0.2:8
-%         state_tmp = [x_i,y_i,x0_original(3)];
-%         value = eval_u(grid,data(:,:,:,end),state_tmp);
-%         if(value<0)
-%             plot3(x_i,y_i,0,'*','Color','b')
-%         end
-%     end
-% end
+%%
+BRT_2d_layer = zeros(80,40);
+ind = 1:80*40;
+[I1, I2] = ind2sub([80,40], ind);
+    for j = ind
+        i1 = I1(j); % current element indector
+        i2 = I2(j);
+        BRT_2d_layer(i1,i2) = eval_u(grid, data(:,:,:,end), [i1*params.grid_dx1-8,i2*params.grid_dx1,-pi/2]);
+    end
+%%
+%BRT_2d_layer = normalize(BRT_2d_layer, "range",[-1,1]);
+%BRT_2d_layer = normalize(BRT_2d_layer, "norm");
 
 %%
-for k = 1:len
 
-    %clf;
+for k = 1:len
+    clf;
     hold on;
     axis equal;
     grid on;
@@ -97,11 +98,15 @@ for k = 1:len
     x_t = x_arr(:,k);
     r_mat = rot_zyx([0,0,x_t(3)]);
 
-    view(0,90);
+    view(30,40);
     %view(90,0)
-    axis([-8,8,0,8,0,1.2]);
+    axis([-8,8,0,8,0,1.5]);
 
-    plot_cube(r_mat,1.1,0.6,0.05,[x_t(1);x_t(2);0]);
+    plot_cube(r_mat,1.1,0.6,0.2,[x_t(1);x_t(2);0.8]);
+
+    [X,Y]=meshgrid(-8+params.grid_dx1:params.grid_dx1:8,0+params.grid_dx1:params.grid_dx1:8);
+    surf(X,Y,-1*BRT_2d_layer')
+    colormap summer
 
     pause(0.1);
     hold on;

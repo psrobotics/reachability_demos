@@ -74,7 +74,7 @@ obj.u = u;
 % get current state, (last one)
 x1 = x(end, :)';
 [value_end, ~, ~] = dubins_reset_event(ts(end), x1);
-fprintf('vll %d\n',value_end);
+%fprintf('vll %d\n',value_end);
 
 if value_end < 0
     fprintf('state_flip\n');

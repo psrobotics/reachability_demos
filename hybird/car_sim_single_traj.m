@@ -1,8 +1,9 @@
-function [x_arr, ctr_arr, t_arr] = car_sim_single_traj(car_sys, x_init, grid, data, tau, params)
+function [x_arr, ctr_arr, t_arr, brs_t_ind_arr] = car_sim_single_traj(car_sys, x_init, grid, data, tau, params)
 % sim opti traj of the car
 x_arr = x_init;
 t_arr = [];
 ctr_arr = [];
+brs_t_ind_arr = [];
 dt = tau(2)-tau(1);
 
 for t_n = tau
@@ -24,6 +25,7 @@ for t_n = tau
             break;
         end
     end
+    brs_t_ind_arr = [brs_t_ind_arr, t_earliest_i];
     brs_at_t = data(:,:,:,t_earliest_i);
     deriv_t = computeGradients(grid, brs_at_t);
     deriv_n = eval_u(grid, deriv_t, x_n);

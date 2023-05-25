@@ -82,8 +82,7 @@ if value_end < 0
     xPost = zeros(3, 1);
     % R pre-defined traj params
     if strcmp(obj.reset_map_type, 'parametrized')
-        %xPost(1) = -1*obj.R * (abs(x1(1))/obj.R)^obj.params.alpha *sign(x1(1));
-        xPost(1) = -1 * (abs(x1(1))/2) *sign(x1(1));
+        xPost(1) = -1 * (abs(x1(1))/50) *sign(x1(1));
     else
         error("reset_map_type not supported.")
     end

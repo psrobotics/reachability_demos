@@ -42,5 +42,5 @@ for test_i = 1:test_case_num
     %% vis process
     BRT_2d_layer = get_2d_brt_vis(x_arr_tmp, ctr_arr_tmp, t_arr_tmp, grid, data, params);
     %% car anime
-    car_anime(x_arr_tmp, ctr_arr_tmp, t_arr_tmp, grid, data, params,BRT_2d_layer,0);
+    car_anime(x_arr_tmp, ctr_arr_tmp, t_arr_tmp, grid, data, params,BRT_2d_layer,1);
 end

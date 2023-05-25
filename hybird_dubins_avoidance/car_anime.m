@@ -59,8 +59,8 @@ for k = 1:len
                       0+params.grid_dx1: params.grid_dx1: g.max(2));
     BRT_2d_layer_high_res = griddata(X,Y,BRT_2d_layer(:,:)',Xq,Yq,"cubic");
 
-    surf(Xq,Yq,-0.5*BRT_2d_layer_high_res);
-    colormap summer;
+    % surf(Xq,Yq,-0.5*BRT_2d_layer_high_res);
+    % colormap summer;
 
     pause(params.dt);
     hold on;

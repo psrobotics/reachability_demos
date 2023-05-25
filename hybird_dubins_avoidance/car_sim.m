@@ -11,18 +11,22 @@ addpath(genpath('hj_pde\'));
 alpha = 1.0;
 % alpha = 1.0;
 
-data_file_str = strcat('data_with_reset_map_alpha_', num2str(100*alpha));
-data_file_str = strcat(data_file_str, '_t_6');
+data_file_str = strcat('data\data_with_reset_map_alpha_', num2str(100*alpha));
+data_file_str = strcat(data_file_str, '_t_2');
 load(data_file_str);
 params.alpha = alpha;
 
 %% init states, car system
 params.dt = tau(2)-tau(1);
-params.tar_pos = [0,4];
-params.tar_r = 0.5;
+params.obst_pos = [-1.5,1.5;1.5,1.5];
+params.obst_r = 4;
+params.R = 2;
+
+params.kp = 0.5;
+params.sim_time = 24;
 
 %% create a set of random init states
-test_case_num = 20;
+test_case_num = 1;
 x0_arr = zeros(3,test_case_num);
 x0_arr(1,:) = (7.5-(-7.5)).*rand(test_case_num,1) - 7.5;
 x0_arr(2,:) = (7.5-0).*rand(test_case_num,1) - 0;
@@ -33,10 +37,10 @@ for test_i = 1:test_case_num
     x0_original = x0_arr(:,test_i)
     dubins_car = hybird_mod_dubins_car([], x0_original, params, 'parametrized'); % select dyn model
     % sim process
-    [x_arr_tmp, ctr_arr_tmp, t_arr_tmp, brs_t_ind_arr] =...
-        car_sim_single_traj(dubins_car, x0_original, grid, data, tau, params);
+    [x_arr_tmp, ctr_arr_tmp, t_arr_tmp] =...
+        car_sim_single_traj(dubins_car, x0_original, grid, data, params.sim_time, params);
     %% vis process
-    BRT_2d_layer = get_2d_brt_vis(x_arr_tmp, ctr_arr_tmp, t_arr_tmp, brs_t_ind_arr, grid, data, params);
+    BRT_2d_layer = get_2d_brt_vis(x_arr_tmp, ctr_arr_tmp, t_arr_tmp, grid, data, params);
     %% car anime
-    car_anime(x_arr_tmp, ctr_arr_tmp, t_arr_tmp, brs_t_ind_arr, grid, data, params, BRT_2d_layer,1);
+    car_anime(x_arr_tmp, ctr_arr_tmp, t_arr_tmp, grid, data, params,BRT_2d_layer,0);
 end

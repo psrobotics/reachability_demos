@@ -8,7 +8,9 @@ addpath(genpath('visualize\'));
 addpath(genpath('hj_pde\'));
 
 %% generate target fcn area
-R = 2;
+% computing brt for obstacles
+
+R = 2; % R for desired loop trajectory
 M = 40;
 params.grid_dx1 = 8 * R / (2 * M);
 params.grid_dx3 = 2*pi/(2*M);
@@ -26,14 +28,20 @@ g_tmp_max = params.grid_max(1:2);
 N_tmp = [N(1); N(2)];
 g_tmp = createGrid(g_tmp_min, g_tmp_max, N_tmp);
 
-target_area_r = 0.5;
-target_area_pos = [0;4];
+target_area_r = 2;
+target_area_pos_1 = [1.5;1.5];
+target_area_pos_2 = [-1.5;1.5];
 
-data0 = zeros(N);
-for i=1:N(3)
-    %ToolboxLS\Kernel\InitialConditions\SetOperations, Get combined shape
-    data0(:,:,i) = shapeSphere(g_tmp,target_area_pos,target_area_r);
-end
+obst_1 = shapeCylinder(grid, 3, target_area_pos_1, target_area_r);
+obst_2 = shapeCylinder(grid, 3, target_area_pos_2, target_area_r);
+data0 = shapeUnion(obst_1, obst_2);
+
+% data0 = zeros(N);
+% for i=1:N(3)
+%     %ToolboxLS\Kernel\InitialConditions\SetOperations, Get combined shape
+%     shapeUnion
+%     data0(:,:,i) = shapeSphere(g_tmp,target_area_pos,target_area_r);
+% end
 
 %%
 params.v = 2; % forward_vel
@@ -41,14 +49,9 @@ params.R = R; % cycle_r
 params.u_bound = 1; % turning limit
 params.alpha = 1.0;
 
-%% Load target set and grid
-%load('dubins_target_binary_hybrid')
-% Load value function set
-%target_function = data0;
-
 %% solver setup
 schemeData.grid = grid;
-schemeData.uMode = 'min'; % control trying to min the cost fcn, reachable set
+schemeData.uMode = 'max'; % control trying to max the signed dist to avoid obstacles
 
 schemeData.dynSys = hybird_mod_dubins_car([], [], params, 'parametrized'); % select dyn model
 
@@ -69,7 +72,7 @@ HJIextraArgs.visualize.deleteLastPlot = true; % delete previous plot as you upda
 %% sim time
 t0 = 0;
 dt = 0.1;
-t_max = 3;
+t_max = 2;
 tau = t0:dt:t_max;
 %data0 = target_function; % pre-defined target set value function (generated from python script)
 
@@ -84,7 +87,7 @@ schemeData.reset_map = get_reset_map_parametrized(grid, params);
 %derivatives = computeGradients(grid, data(:,:,:,end));
 %safety_controller = schemeData.dynSys.optCtrl([], [], derivatives, 'min'); % min signed dist
 %%
-data_file_str = strcat('data_with_reset_map_alpha_', num2str(100*alpha));
+data_file_str = strcat('data\data_with_reset_map_alpha_', num2str(100*alpha));
 data_file_str = strcat(data_file_str, '_t_');
 data_file_str = strcat(data_file_str, num2str(t_max));
 save(strcat(data_file_str, '.mat'), 'grid', 'data0', 'params', 'data', 'tau'); % save data

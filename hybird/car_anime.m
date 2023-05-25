@@ -4,19 +4,24 @@ BRT_2d_layer = zeros(20,10);
 ind = 1:20*10;
 [I1, I2] = ind2sub([20,10], ind);
 
-for j = 1:ind(end)
-    i1 = I1(j); % current element indector
-    i2 = I2(j);
-    BRT_2d_layer(i1,i2) = eval_u(g, data(:,:,:,end),...
-        [i1*params.grid_dx1*4+g.min(1), i2*params.grid_dx1*4, x_arr(3,1)]);
-    fprintf('analysis 2D BRT index %d of %d \n',j,ind(end));
-end
-
 % create simulation amine
 size_arr = size(x_arr);
 len = size_arr(2)-1;
 
-%%
+% pre-compute all brs at defined timestep
+brs_arr = zeros(20,10,len);
+
+for k = 1:len
+for j = 1:ind(end)
+    i1 = I1(j); % current element indector
+    i2 = I2(j);
+    brs_arr(i1,i2,k) = eval_u(g, data(:,:,:,brs_t_ind_arr(k)),...
+        [i1*params.grid_dx1*4+g.min(1), i2*params.grid_dx1*4, x_arr(3,1)]);
+    fprintf('analysis 2D BRT index %d of %d, timestep %d of %d \n',j,ind(end),k,len);
+end
+end
+
+
 for k = 1:len
     clf;
     hold on;
@@ -44,7 +49,7 @@ for k = 1:len
                       0+params.grid_dx1: params.grid_dx1*4: g.max(2));
     [Xq,Yq] = meshgrid(g.min(1): params.grid_dx1: g.max(1),...
                       0+params.grid_dx1: params.grid_dx1: g.max(2));
-    BRT_2d_layer_high_res = griddata(X,Y,BRT_2d_layer',Xq,Yq,"cubic");
+    BRT_2d_layer_high_res = griddata(X,Y,brs_arr(:,:,k)',Xq,Yq,"cubic");
     surf(Xq,Yq,-1*BRT_2d_layer_high_res)
     colormap summer
 

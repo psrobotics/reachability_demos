@@ -1,4 +1,4 @@
-function x1 = updateStateWithResetMap(obj, u, T, x0, d)
+function x_out = updateStateWithResetMap(obj, u, T, x0, d)
 
 % simulate and update the car state, with pre-defined reset map
 % x1 = updateState(obj, u, T, x0, d)
@@ -96,10 +96,18 @@ if value_end < 0
         xPost(3) = x1(3) - pi;
     end
     obj.x = xPost;
-    x1 = xPost; % copy fliped value 
 else
     obj.x = x1;
 end
+
+% check if heading angle goes beyond range
+if obj.x(3) > pi
+    obj.x(3) = obj.x(3) - 2*pi;
+elseif obj.x(3) < -pi
+    obj.x(3) = obj.x(3) + 2*pi;
+end
+
+x_out = obj.x;
 
 obj.xhist = cat(2, obj.xhist, obj.x);
 obj.uhist = cat(2, obj.uhist, u);

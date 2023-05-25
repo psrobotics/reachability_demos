@@ -3,6 +3,9 @@ close all
 
 addpath(genpath('D:\matlab_lib\helperOC\'));
 addpath(genpath('D:\matlab_lib\ToolboxLS\'));
+addpath(genpath('data\'));
+addpath(genpath('visualize\'));
+addpath(genpath('hj_pde\'));
 
 %% generate target fcn area
 R = 2;

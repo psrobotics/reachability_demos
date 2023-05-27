@@ -87,7 +87,7 @@ schemeData.reset_map = get_reset_map_parametrized(grid, params);
 %derivatives = computeGradients(grid, data(:,:,:,end));
 %safety_controller = schemeData.dynSys.optCtrl([], [], derivatives, 'min'); % min signed dist
 %%
-data_file_str = strcat('data\data_with_reset_map_alpha_', num2str(100*alpha));
+data_file_str = strcat('data\data_with_reset_map_alpha_halve_4', num2str(100*alpha));
 data_file_str = strcat(data_file_str, '_t_');
 data_file_str = strcat(data_file_str, num2str(t_max));
 save(strcat(data_file_str, '.mat'), 'grid', 'data0', 'params', 'data', 'tau'); % save data
@@ -129,7 +129,7 @@ function reset_map = get_reset_map_parametrized(grid, params)
             x_bar_current = grid.vs{1}(i1) % get current x value
             alpha = params.alpha
             %x_bar_post = -R*(abs(x_bar_current)/R)^alpha * sign(x_bar_current) % cal new x value
-            x_bar_post = -1*(abs(x_bar_current)/2) * sign(x_bar_current) % cal new x value
+            x_bar_post = -1*(abs(x_bar_current)/4) * sign(x_bar_current) % cal new x value
             i1_post = ceil((x_bar_post - params.grid_min(1))/params.grid_dx1) % find new x index
             if i1_post < 1
                 i1_post = 1;

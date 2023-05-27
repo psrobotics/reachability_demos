@@ -11,7 +11,7 @@ addpath(genpath('hj_pde\'));
 alpha = 1.0;
 % alpha = 1.0;
 
-data_file_str = strcat('data\data_with_reset_map_alpha_', num2str(100*alpha));
+data_file_str = strcat('data\data_with_reset_map_alpha_halve_4', num2str(100*alpha));
 data_file_str = strcat(data_file_str, '_t_2');
 load(data_file_str);
 params.alpha = alpha;

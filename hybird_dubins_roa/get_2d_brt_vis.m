@@ -17,7 +17,7 @@ for j = 1:ind(end)
     i2 = I2(j);
 
     brs_arr(i1,i2,k) = eval_u(g, data(:,:,:,brs_t_ind_arr(k)),...
-        [(i1-1)*params.grid_dx1*4+g.min(1), (i2-1)*params.grid_dx1*4, x_arr(3,1)]);
+        [(i1-1)*params.grid_dx1*4+g.min(1), (i2-1)*params.grid_dx1*4, x_arr(3,k)]);
     fprintf('analysis 2D BRT index %d of %d, timestep %d of %d \n',j,ind(end),k,len);
 end
 end

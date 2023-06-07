@@ -1,49 +1,28 @@
-classdef drone_2d < DynSys
+classdef car_1d_hybrid < DynSys
   properties
-    % Angle bounds
-    thetaMax
-    % Constant speed
-    speed 
     % Disturbance
     dRange
     % Dimensions that are active
     dims
+    % range of obstacle
+    obst_range % 1x2 vec
   end
   
   methods
-      function obj = drone_2d(x, thetaMax, speed, dRange, dims)
-      % obj = drone_2d(x, thetaMax, speed, dMax, dims)
-      %     drone 2d class
-      %
-      % Dynamics:
-      %    \dot{x}_1 = v * cos(theta) + d1
-      %    \dot{x}_2 = v * sin(theta) + d2
-      %    theta \in [-thetaMax, thetaMax]
-      %    d \in [-dMax, dMax]
-      %
-      % Inputs:
-      %   x      - state: [xpos; ypos]
-      %   thetaMin   - minimum angle
-      %   thetaMax   - maximum angle
-      %   v - speed
-      %   dMax   - disturbance bounds
-      %
-      % Output:
-      %   obj       - a drone 2d object
+      function obj = car_1d_hybrid(x, dRange, dims)
       
       % Basic properties
-      obj.pdim = [find(dims == 1) find(dims == 2)]; % Position dimensions
-      obj.nx = length(dims);
-      obj.nu = 1;
-      obj.nd = 2;
+      obj.pdim = [find(dims == 1)]; % Position dimensions
+      obj.nx = length(dims); % state dim
+      obj.nu = 1; % input dim
+      obj.nd = 1; % disturb dim
       
       obj.x = x;
       obj.xhist = obj.x;
 
-      obj.thetaMax = thetaMax;
-      obj.speed = speed;
       obj.dRange = dRange;
       obj.dims = dims;
+      obj.obst_range = obst_range;
     end
     
   end % end methods

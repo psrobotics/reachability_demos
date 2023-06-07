@@ -5,7 +5,7 @@ addpath(genpath('D:\matlab_lib\helperOC\'));
 addpath(genpath('D:\matlab_lib\ToolboxLS\'));
 addpath(genpath('data\'));
 addpath(genpath('visualize\'));
-addpath(genpath('hj_pde\'));
+addpath(genpath('..\mod_hj_pde_solver\'));
 
 %% generate target fcn area
 % computing brt for obstacles

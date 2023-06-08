@@ -7,9 +7,14 @@ function dx = dynamics(obj, ~, x, u, d, q_mode)
 % x_dot = u   for all x
 % q_mode is hybrid control mode
 
-% init
+% init, if there's no distrubance range input
 if nargin < 5
-  d = [0; 0];
+  d = 0;
+end
+
+% if there's no operation mode input
+if nargin<6
+    q_mode = 1;
 end
 
 if iscell(x)

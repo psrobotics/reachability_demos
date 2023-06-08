@@ -12,15 +12,11 @@ end
 
 %% TODO
 % Compute the optimal control
-if strcmp(uMode, 'max')
-  uOpt = atan2(deriv{2},deriv{1});% Compute the optimal control for max case
-  uOpt(uOpt>obj.thetaMax) = obj.thetaMax;
-  uOpt(uOpt<(-1*obj.thetaMax)) = -1*obj.thetaMax;
+if strcmp(uMode, 'max') % when control try to avoid obst
+  uOpt = (deriv{obj.dims==3}>=0) * obj.uRange + (deriv{obj.dims==3}<0) * -1*obj.uRange;
 
-elseif strcmp(uMode, 'min')
-  uOpt = atan2(deriv{2},deriv{1}) + pi;% Compute the optimal control for min case
-  uOpt(uOpt>obj.thetaMax) = obj.thetaMax;
-  uOpt(uOpt<(-1*obj.thetaMax)) = -1*obj.thetaMax;
+elseif strcmp(uMode, 'min') % when control try to reach target set
+  uOpt = (deriv{obj.dims==3}>=0) * -1*obj.uRange + (deriv{obj.dims==3}<0) * obj.uRange;
   
 else
   error('Unknown uMode!')

@@ -1,6 +1,8 @@
 classdef car_1d_hybrid < DynSys
   properties
-    % Disturbance
+    % input abs range
+    uRange
+    % Disturbance abs range
     dRange
     % Dimensions that are active
     dims
@@ -9,7 +11,7 @@ classdef car_1d_hybrid < DynSys
   end
   
   methods
-      function obj = car_1d_hybrid(x, dRange, dims)
+      function obj = car_1d_hybrid(x, uRange, dRange, dims)
       
       % Basic properties
       obj.pdim = [find(dims == 1)]; % Position dimensions
@@ -20,6 +22,7 @@ classdef car_1d_hybrid < DynSys
       obj.x = x;
       obj.xhist = obj.x;
 
+      obj.uRange = uRange;
       obj.dRange = dRange;
       obj.dims = dims;
       obj.obst_range = obst_range;

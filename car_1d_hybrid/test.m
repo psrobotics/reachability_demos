@@ -1,45 +1,51 @@
 addpath(genpath('..\toolbox\helperOC\'));
 addpath(genpath('..\toolbox\ToolboxLS\'));
+addpath(genpath('..\mod_hj_pde_solver\'));
 
 %% TODO
 % Define the grid for the computation: g
 % g =...
-grid_min = [-4; -4]; % Lower corner of computation domain
-grid_max = [4; 4];    % Upper corner of computation domain
-N = [80; 80];         % Number of grid points per dimension
-g = createGrid(grid_min, grid_max, N);
+grid_min = -4; % Lower corner of computation domain
+grid_max = 4;    % Upper corner of computation domain
+N = 80;         % Number of grid points per dimension
+g = createGrid(grid_min, grid_max, N); % generate a 1d grid
+dx_grid = (grid_max - grid_min)/N
 
-%% TODO Hint: look into shapeSphere() function 
-% Define the failure set: data0
+%% Define the targetset on 1d GRID
 % data0 = ....
-R = 1;
-data0 = shapeSphere(g,[0;0],R);
+R = 0.4;
+R_v = 3;
+data0 = zeros(N,1); % 80*1 vec
+data0(floor((R_v-grid_min)/dx_grid):floor((R_v+R-grid_min)/dx_grid)) = -0.5; % any neg number
 
 %% time vector
 t0 = 0;
-tMax = 2;
+tMax = 5; % compute roa for 5 secs
 dt = 0.05;
 tau = t0:dt:tMax;
 
 %% problem parameters
 
 % input bounds
-speed = 1;
-theta_max = pi/6;
-dist_max = 0;
+speed_range = 0.25;
+disturbance_range = 0;
 
-% control trying to min or max value function?
-uMode = 'max';
-dMode = 'min';
+uMode = 'min';
+dMode = 'max';
+
+x_init = 0; % doesnt matter for brt calc
+x_dim = 1; % if 2d sys, [1,2]
+obst_range = [0,1];
 
 %% Pack problem parameters
 
 % Define dynamic system
-drone = drone_2d([0, 0], theta_max, speed, dist_max, [1, 2]);
+
+car_1d = car_1d_hybrid(x_init, speed_range, disturbance_range, obst_range, x_dim);
 
 % Put grid and dynamic systems into schemeData
 schemeData.grid = g;
-schemeData.dynSys = drone;
+schemeData.dynSys = car_1d;
 schemeData.accuracy = 'high'; %set accuracy
 schemeData.uMode = uMode;
 schemeData.dMode = dMode;

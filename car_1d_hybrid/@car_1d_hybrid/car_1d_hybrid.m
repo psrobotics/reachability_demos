@@ -11,10 +11,10 @@ classdef car_1d_hybrid < DynSys
   end
   
   methods
-      function obj = car_1d_hybrid(x, uRange, dRange, dims)
+      function obj = car_1d_hybrid(x, uRange, dRange, obst_range, dims)
       
       % Basic properties
-      obj.pdim = [find(dims == 1)]; % Position dimensions
+      % obj.pdim = [find(dims == 1)]; % Position dimensions
       obj.nx = length(dims); % state dim
       obj.nu = 1; % input dim
       obj.nd = 1; % disturb dim

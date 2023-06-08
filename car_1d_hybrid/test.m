@@ -35,7 +35,7 @@ dMode = 'max';
 
 x_init = 0; % doesnt matter for brt calc
 x_dim = 1; % if 2d sys, [1,2]
-obst_range = [0,1];
+obst_range = [-1,0];
 
 %% Pack problem parameters
 

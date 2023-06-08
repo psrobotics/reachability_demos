@@ -13,10 +13,10 @@ end
 %% TODO
 % Compute the optimal control
 if strcmp(uMode, 'max') % when control try to avoid obst
-  uOpt = (deriv{obj.dims==3}>=0) * obj.uRange + (deriv{obj.dims==3}<0) * -1*obj.uRange;
+  uOpt{1} = (deriv{obj.dims==1}>=0) * obj.uRange + (deriv{obj.dims==1}<0) * -1*obj.uRange;
 
 elseif strcmp(uMode, 'min') % when control try to reach target set
-  uOpt = (deriv{obj.dims==3}>=0) * -1*obj.uRange + (deriv{obj.dims==3}<0) * obj.uRange;
+  uOpt{1} = (deriv{obj.dims==1}>=0) * -1*obj.uRange + (deriv{obj.dims==1}<0) * obj.uRange;
   
 else
   error('Unknown uMode!')

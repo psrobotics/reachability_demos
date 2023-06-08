@@ -18,13 +18,9 @@ dOpt = cell(obj.nd, 1);
 
 %% Optimal control
 if strcmp(dMode, 'max')
-    theta_opt = atan2(deriv{2},deriv{1});
-    dOpt{1} = obj.dRange*cos(theta_opt); %dx
-    dOpt{2} = obj.dRange*sin(theta_opt); %dy
+    dOpt{1} = (deriv{obj.dims==1}>=0) * -1*obj.dRange + (deriv{obj.dims==1}<0) * obj.dRange;
 elseif strcmp(dMode, 'min')
-    theta_opt = atan2(deriv{2},deriv{1}) + pi;
-    dOpt{1} = obj.dRange*cos(theta_opt); %dx
-    dOpt{2} = obj.dRange*sin(theta_opt); %dy
+    dOpt{1} = (deriv{obj.dims==1}>=0) * obj.dRange + (deriv{obj.dims==1}<0) * -1*obj.dRange;
 else
   error('Unknown dMode!')
 end

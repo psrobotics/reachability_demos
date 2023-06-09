@@ -13,14 +13,19 @@ dx_grid = (grid_max - grid_min)/N
 
 %% Define the targetset on 1d GRID
 % data0 = ....
-R = 1;
-R_v = 3;
-data0 = zeros(N,1); % 80*1 vec
-data0(floor((R_v-grid_min)/dx_grid):floor((R_v+R-grid_min)/dx_grid)) = -0.5; % any neg number
+% R = 1;
+% R_v = 3;
+% data0 = zeros(N,1); % 80*1 vec
+% data0(floor((R_v-grid_min)/dx_grid):floor((R_v+R-grid_min)/dx_grid)) = -1; % any neg number
+%%
+%% target set
+R = 0.5;
+% data0 = shapeCylinder(grid,ignoreDims,center,radius)
+data0 = shapeCylinder(g, [], [3.5], R);
 
 %% time vector
 t0 = 0;
-tMax = 6; % compute roa for 5 secs
+tMax = 6; % compute roa
 dt = 0.05;
 tau = t0:dt:tMax;
 t_step_num = tMax/dt
@@ -43,6 +48,7 @@ obst_range = [-1,0];
 % Define dynamic system
 
 car_1d = car_1d_hybrid(x_init, speed_range, disturbance_range, obst_range, x_dim);
+%car_1d = Dog1D(x_init,speed_range);
 
 % Put grid and dynamic systems into schemeData
 schemeData.grid = g;
@@ -64,6 +70,10 @@ HJIextraArgs.visualize.deleteLastPlot = false; %delete previous plot as you upda
 % uncomment if you want to see a 2D slice
 % HJIextraArgs.visualize.plotData.plotDims = [1 1]; %plot x, y
 HJIextraArgs.visualize.viewAngle = [0,90]; % view 2D
+% set axis limits
+xlim([-4 4]);
+ylim([-1 0]);
+
 
 %[data, tau, extraOuts] = ...
 % HJIPDE_solve(data0, tau, schemeData, minWith, extraArgs)

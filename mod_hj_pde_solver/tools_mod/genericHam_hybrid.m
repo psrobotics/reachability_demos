@@ -70,7 +70,7 @@ end
 % changed to select opti q mode, and store it
 % calcuate hamvalue for different q mode
 
-hamValue_arr = ones([schemeData.grid.N,2]); % each col is a q mode, we have 2 modes in this demo
+hamValue_arr = zeros([schemeData.grid.N,2]); % each col is a q mode, we have 2 modes in this demo
 
 q_mode_count = 2; % we have 2 operation modes
 
@@ -82,14 +82,16 @@ for q_mode = 1:q_mode_count
         fprintf('ham value %d\n', q_mode);
         hamValue_tmp = hamValue_tmp + deriv{i}.*dx_tmp{i};
     end
+
     hamValue_arr(:,q_mode) = hamValue_tmp;
+
 end
 
 % select the smaller one, min over row and return the smallest col
 [hamValue, q_opti] = min(hamValue_arr, [], 2); 
 
-size(q_opti)
-size(hamValue)
+size(q_opti);
+size(hamValue);
 
 % store thr q opti, need to return this
 %schemeData.q_mode_arr(:,schemeData.q_index) = q_opti;

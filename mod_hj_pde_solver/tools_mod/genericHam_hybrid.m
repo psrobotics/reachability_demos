@@ -66,15 +66,38 @@ if isfield(schemeData, 'side')
 end
 
 %% Plug optimal control into dynamics to compute Hamiltonian
-dx = dynSys.dynamics(t, schemeData.grid.xs, u, d);
+
+% changed to select opti q mode, and store it
+% calcuate hamvalue for different q mode
+
+hamValue_1 = 0;
+hamValue_2 = 0;
+
+q_mode = 1;
+dx_1 = dynSys.dynamics(t, schemeData.grid.xs, u, d, q_mode);
 for i = 1:dynSys.nx
-  hamValue = hamValue + deriv{i}.*dx{i};
+  fprintf('ham value 1\n');
+  hamValue_1 = hamValue_1 + deriv{i}.*dx_1{i};
 end
 
+q_mode = 2;
+dx_2 = dynSys.dynamics(t, schemeData.grid.xs, u, d, q_mode);
+for i = 1:dynSys.nx
+  fprintf('ham value 2\n');
+  hamValue_2 = hamValue_2 + deriv{i}.*dx_2{i};
+end
+
+% select the smaller one, min over each row and return the smallest col
+[hamValue, q_opti] = min([hamValue_1,hamValue_2],[],2);
+% store thr q opti
+schemeData.q_mode_arr(end+1) = q_opti;
+
+% other user selected case, ?
 if isprop(dynSys, 'TIdim') && ~isempty(dynSys.TIdim)
   TIdx = dynSys.TIdyn(t, schemeData.grid.xs, u, d);
   hamValue = hamValue + TIderiv*TIdx{1};
 end
+
 
 %% Negate hamValue if backward reachable set
 if strcmp(schemeData.tMode, 'backward')

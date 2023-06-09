@@ -984,6 +984,9 @@ if isfield(extraArgs,'ignoreBoundary') &&...
         g, data0, g.min+4*g.dx, g.max-4*g.dx);
 end
 
+% add an empty arr to store selected q mode, changed
+schemeData.q_mode_arr = [];
+
 for i = istart:length(tau)
     if ~quiet
         fprintf('tau(i) = %f\n', tau(i))

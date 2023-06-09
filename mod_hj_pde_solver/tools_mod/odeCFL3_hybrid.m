@@ -64,6 +64,7 @@ function [ t, y, schemeData ] = ...
 % Modified to allow vector level sets.  Ian Mitchell, 12/13/04.
 % Modified to add terminalEvent option, Ian Mitchell, 1/30/05.
 
+  fprintf("modified odeCFL3 solver\n");
   %---------------------------------------------------------------------------
   % How close (relative) do we need to be to the final time?
   small = 100 * eps;

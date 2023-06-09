@@ -1,6 +1,8 @@
 function hamValue = genericHam(t, data, deriv, schemeData)
 % function hamValue = genericHam(t, data, deriv, schemeData)
 
+fprintf("modified hamValue solver \n");
+
 %% Input unpacking
 dynSys = schemeData.dynSys;
 

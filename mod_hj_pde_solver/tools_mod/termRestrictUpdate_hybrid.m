@@ -53,6 +53,7 @@ function [ ydot, stepBound, schemeData ] = termRestrictUpdate(t, y, schemeData)
 % Ian Mitchell, 3/26/04
 % Updated to handle vector level sets.  Ian Mitchell 11/23/04.
 
+fprintf("modified termRestrictUpdate \n");
   %---------------------------------------------------------------------------
   % For vector level sets, get the first element.
   if(iscell(schemeData))

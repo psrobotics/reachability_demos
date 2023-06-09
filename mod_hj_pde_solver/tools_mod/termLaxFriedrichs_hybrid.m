@@ -99,6 +99,7 @@ function [ ydot, stepBound, schemeData ] = termLaxFriedrichs(t, y, schemeData)
 % Calling parameters significantly modified, Ian Mitchell 2/11/04.
 % Updated to handle vector level sets.  Ian Mitchell 11/23/04.
 
+fprintf("modified termLaxFriedrichs \n");
   %---------------------------------------------------------------------------
   % For vector level sets, ignore all the other elements.
   if(iscell(schemeData))

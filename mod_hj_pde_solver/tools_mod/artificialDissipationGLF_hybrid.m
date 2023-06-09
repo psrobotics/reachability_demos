@@ -61,6 +61,7 @@ function [ diss, stepBound ] = ...
 % Ian Mitchell 5/13/03
 % Calling parameters significantly modified, Ian Mitchell 2/11/04.
 
+fprintf("modified artificialDissipationGLF \n");
 
   %---------------------------------------------------------------------------
   checkStructureFields(schemeData, 'grid', 'partialFunc');

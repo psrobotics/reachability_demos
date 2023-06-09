@@ -1,6 +1,8 @@
 function alpha = genericPartial(t, data, derivMin, derivMax, schemeData, dim)
 % alpha = genericPartial(t, data, derivMin, derivMax, schemeData, dim)
 
+fprintf("modified genericPartial solver \n");
+
 g = schemeData.grid;
 dynSys = schemeData.dynSys;
 

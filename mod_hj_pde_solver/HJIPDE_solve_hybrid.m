@@ -874,8 +874,8 @@ end
 
 %% Extract dynamical system if needed
 if isfield(schemeData, 'dynSys')
-    schemeData.hamFunc = @genericHam;
-    schemeData.partialFunc = @genericPartial;
+    schemeData.hamFunc = @genericHam_hybrid; % changed to modified solver
+    schemeData.partialFunc = @genericPartial_hybrid; % changed to modified solver
 end
 
 stopConverge = false;
@@ -904,8 +904,8 @@ dissType = 'global';
 % if we're doing minWithZero or zero as the comp method, actually implement
 % correctly using level set toolbox
 if strcmp(compMethod, 'minWithZero') || strcmp(compMethod, 'zero')
-    schemeFunc = @termRestrictUpdate;
-    schemeData.innerFunc = @termLaxFriedrichs;
+    schemeFunc = @termRestrictUpdate_hybrid; % change to hybrid solver
+    schemeData.innerFunc = @termLaxFriedrichs_hybrid; % change to hybrid solver
     schemeData.innerData = schemeData;
     schemeData.innerData = schemeData;
     schemeData.positive = 0;
@@ -1598,7 +1598,7 @@ function [dissFunc, integratorFunc, derivFunc] = ...
 % Dissipation
 switch(dissType)
     case 'global'
-        dissFunc = @artificialDissipationGLF;
+        dissFunc = @artificialDissipationGLF_hybrid; % change to hybrid one
     case 'local'
         dissFunc = @artificialDissipationLLF;
     case 'locallocal'
@@ -1617,10 +1617,10 @@ switch(accuracy)
         integratorFunc = @odeCFL2;
     case 'high'
         derivFunc = @upwindFirstENO3;
-        integratorFunc = @odeCFL3;
+        integratorFunc = @odeCFL3_hybrid; % change to hybrid one
     case 'veryHigh'
         derivFunc = @upwindFirstWENO5;
-        integratorFunc = @odeCFL3;
+        integratorFunc = @odeCFL3_hybrid; % change to hybrid one
     otherwise
         error('Unknown accuracy level %s', accuracy);
 end

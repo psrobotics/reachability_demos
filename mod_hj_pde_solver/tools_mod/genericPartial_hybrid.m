@@ -1,4 +1,4 @@
-function alpha = genericPartial(t, data, derivMin, derivMax, schemeData, dim)
+function alpha = genericPartial_hybrid(t, data, derivMin, derivMax, schemeData, dim)
 % alpha = genericPartial(t, data, derivMin, derivMax, schemeData, dim)
 
 fprintf("modified genericPartial solver \n");
@@ -55,11 +55,22 @@ else
 end
   
 %% Compute alpha
-dxUU = dynSys.dynamics(t, schemeData.grid.xs, uU, dU);
-dxUL = dynSys.dynamics(t, schemeData.grid.xs, uU, dL);
-dxLL = dynSys.dynamics(t, schemeData.grid.xs, uL, dL);
-dxLU = dynSys.dynamics(t, schemeData.grid.xs, uL, dU);
-alpha = max(abs(dxUU{dim}), abs(dxUL{dim}));
-alpha = max(alpha, abs(dxLL{dim}));
-alpha = max(alpha, abs(dxLU{dim}));
+
+q_mode_count = 2;
+alpha_arr = zeros(schemeData.grid.N,q_mode_count);
+
+for q_mode = 1:q_mode_count
+dxUU = dynSys.dynamics(t, schemeData.grid.xs, uU, dU, q_mode);
+dxUL = dynSys.dynamics(t, schemeData.grid.xs, uU, dL, q_mode);
+dxLL = dynSys.dynamics(t, schemeData.grid.xs, uL, dL, q_mode);
+dxLU = dynSys.dynamics(t, schemeData.grid.xs, uL, dU, q_mode);
+alpha_tmp = max(abs(dxUU{dim}), abs(dxUL{dim}));
+alpha_tmp = max(alpha_tmp, abs(dxLL{dim}));
+alpha_tmp = max(alpha_tmp, abs(dxLU{dim}));
+alpha_arr(:,q_mode) = alpha_tmp;
+end
+
+alpha = max(alpha_arr,[],'all'); % pick smallest t-step across all possible cases
+% alpha makes sure timestep for each compute won't blow up
+
 end

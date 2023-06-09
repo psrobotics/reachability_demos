@@ -1,4 +1,4 @@
-function [ ydot, stepBound, schemeData ] = termRestrictUpdate(t, y, schemeData)
+function [ ydot, stepBound, schemeData ] = termRestrictUpdate_hybrid(t, y, schemeData)
 % termRestrictUpdate: restrict the sign of a term to be positive or negative.
 %
 % [ ydot, stepBound, schemeData ] = termRestrictUpdate(t, y, schemeData)

@@ -1,5 +1,5 @@
 function [ diss, stepBound ] = ...
-                  artificialDissipationGLF(t, data, derivL, derivR, schemeData)
+                  artificialDissipationGLF_hybrid(t, data, derivL, derivR, schemeData)
 % artificialDissipationGLF: (global) Lax-Friedrichs dissipation calculation.
 %
 % [ diss, stepBound ] = ...

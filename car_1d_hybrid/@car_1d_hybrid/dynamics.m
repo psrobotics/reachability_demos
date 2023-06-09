@@ -7,6 +7,8 @@ function dx = dynamics(obj, ~, x, u, d, q_mode)
 % x_dot = u   for all x
 % q_mode is hybrid control mode
 
+fprintf('params in num %d with q mode %d\n',nargin,q_mode);
+
 % init, if there's no distrubance range input
 if nargin < 5
   d = 0;
@@ -30,7 +32,7 @@ else
       case 1 % operation mode 1
           dx(1) = 4*u(1).*is_in_obst(x, obj.obst_range) + d(1);
       case 2 % operation mode 2
-          dx(1) = 1*u(1) + d(1);
+          dx(1) = 4*u(1) + d(1);
   end
 
 end
@@ -41,11 +43,9 @@ function dx = dynamics_cell_helper(obj, x, u, d, q_mode, dims, dim)
 
 switch q_mode
     case 1 % operation mode 1
-        u{1};
     dx = 4*u{1}.*is_in_obst(x, obj.obst_range) + d{1}; % mod
-    dx;
     case 2 % operation mode 2
-    dx = 1*u{1} + d{1};
+    dx = 4*u{1} + d{1};
   otherwise
     error('Only 2 operation modes available')
 end

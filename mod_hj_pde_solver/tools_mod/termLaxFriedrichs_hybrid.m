@@ -1,4 +1,4 @@
-function [ ydot, stepBound, schemeData ] = termLaxFriedrichs(t, y, schemeData)
+function [ ydot, stepBound, schemeData ] = termLaxFriedrichs_hybrid(t, y, schemeData)
 % termLaxFriedrichs: approximate H(x,p) term in an HJ PDE with Lax-Friedrichs.
 %
 %   [ ydot, stepBound, schemeData ] = termLaxFriedrichs(t, y, schemeData)

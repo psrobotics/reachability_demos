@@ -1,6 +1,8 @@
 function uOpt = optCtrl(obj, ~, ~, deriv, uMode)
 % uOpt = optCtrl(obj, t, y, deriv, uMode)
 
+fprintf('the speeed range is %f \n', obj.uRange);
+
 %% Input processing
 if nargin < 5
   uMode = 'min';
@@ -23,5 +25,7 @@ elseif strcmp(uMode, 'min') % when control try to reach target set
 else
   error('Unknown uMode!')
 end
+
+uOpt{1}
 
 end

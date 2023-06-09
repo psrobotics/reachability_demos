@@ -13,16 +13,17 @@ dx_grid = (grid_max - grid_min)/N
 
 %% Define the targetset on 1d GRID
 % data0 = ....
-R = 0.4;
+R = 1;
 R_v = 3;
 data0 = zeros(N,1); % 80*1 vec
 data0(floor((R_v-grid_min)/dx_grid):floor((R_v+R-grid_min)/dx_grid)) = -0.5; % any neg number
 
 %% time vector
 t0 = 0;
-tMax = 5; % compute roa for 5 secs
+tMax = 6; % compute roa for 5 secs
 dt = 0.05;
 tau = t0:dt:tMax;
+t_step_num = tMax/dt
 
 %% problem parameters
 
@@ -49,6 +50,9 @@ schemeData.dynSys = car_1d;
 schemeData.accuracy = 'high'; %set accuracy
 schemeData.uMode = uMode;
 schemeData.dMode = dMode;
+% add an empty arr to store selected q mode, changed
+schemeData.q_mode_arr = zeros(80,t_step_num);
+schemeData.q_index = 1;
 
 %% Compute value function
 % HJIextraArgs.visualize = true; %show plot

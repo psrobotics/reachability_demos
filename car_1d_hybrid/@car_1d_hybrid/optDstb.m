@@ -25,4 +25,7 @@ else
   error('Unknown dMode!')
 end
 
+% forcely set to 0
+dOpt{1} = 0;
+
 end

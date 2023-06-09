@@ -1,5 +1,5 @@
 function [ t, y, schemeData ] = ...
-                            odeCFL3(schemeFunc, tspan, y0, options, schemeData)
+                            odeCFL3_hybrid(schemeFunc, tspan, y0, options, schemeData)
 % odeCFL3: integrate a CFL constrained ODE (eg a PDE by method of lines).
 %
 % [ t, y, schemeData ] = odeCFL3(schemeFunc, tspan, y0, options, schemeData)
@@ -305,7 +305,7 @@ function [ t, y, schemeData ] = ...
   elseif(numT > 2)
     % If we were asked for the solution at multiple timesteps.
     [ t, y, schemeData ] = ...
-     odeCFLmultipleSteps(@odeCFL3, schemeFunc, tspan, y0, options, schemeData);
+     odeCFLmultipleSteps(@odeCFL3_hybrid, schemeFunc, tspan, y0, options, schemeData); % changed to hybrid one
 
   %---------------------------------------------------------------------------
   else

@@ -86,6 +86,8 @@ fprintf("modified termRestrictUpdate \n");
     schemeData.innerData = innerData;
   end
 
+  %max(innerData.q_mode_arr)
+
   %---------------------------------------------------------------------------
   % Default to positive (nonnegative) update restriction.
   if(isfield(thisSchemeData, 'positive'))

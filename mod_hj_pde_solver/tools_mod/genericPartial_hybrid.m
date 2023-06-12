@@ -56,10 +56,9 @@ end
   
 %% Compute alpha
 
-q_mode_count = 2;
-alpha_arr = zeros(schemeData.grid.N,q_mode_count);
+alpha_arr = zeros(schemeData.grid.N,dynSys.q_mode_num);
 
-for q_mode = 1:q_mode_count
+for q_mode = 1:dynSys.q_mode_num
 dxUU = dynSys.dynamics(t, schemeData.grid.xs, uU, dU, q_mode);
 dxUL = dynSys.dynamics(t, schemeData.grid.xs, uU, dL, q_mode);
 dxLL = dynSys.dynamics(t, schemeData.grid.xs, uL, dL, q_mode);

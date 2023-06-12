@@ -1,4 +1,4 @@
-function hamValue = genericHam_hybrid(t, data, deriv, schemeData)
+function [hamValue,schemeData] = genericHam_hybrid(t, data, deriv, schemeData)
 % function hamValue = genericHam(t, data, deriv, schemeData)
 
 fprintf("modified hamValue solver \n");
@@ -70,11 +70,9 @@ end
 % changed to select opti q mode, and store it
 % calcuate hamvalue for different q mode
 
-hamValue_arr = zeros([schemeData.grid.N,2]); % each col is a q mode, we have 2 modes in this demo
+hamValue_arr = zeros([schemeData.grid.N,dynSys.q_mode_num]); % each col is a q mode, we have 2 modes in this demo
 
-q_mode_count = 2; % we have 2 operation modes
-
-for q_mode = 1:q_mode_count
+for q_mode = 1:dynSys.q_mode_num
 
     dx_tmp = dynSys.dynamics(t, schemeData.grid.xs, u, d, q_mode);
     hamValue_tmp = 0;
@@ -94,8 +92,8 @@ size(q_opti);
 size(hamValue);
 
 % store thr q opti, need to return this
-%schemeData.q_mode_arr(:,schemeData.q_index) = q_opti;
-%schemeData.q_index = schemeData.q_index+1;
+schemeData.q_mode_arr(:,schemeData.q_index) = q_opti;
+schemeData.q_index = schemeData.q_index+1;
 
 % other user selected case, ?
 if isprop(dynSys, 'TIdim') && ~isempty(dynSys.TIdim)

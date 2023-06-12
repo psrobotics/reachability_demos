@@ -159,7 +159,8 @@ fprintf("modified termLaxFriedrichs \n");
       % If hamFunc explicitly has two outputs OR if Matlab cannot determine
       % how many outputs it has (eg: hamFunc is an anonymous function or
       % object method), then we assume two output arguments.
-      [ ham thisSchemeData ] = feval(thisSchemeData.hamFunc, t, data, derivC, thisSchemeData);
+      % changed thisSchemeData to schemeData
+      [ ham, thisSchemeData ] = feval(thisSchemeData.hamFunc, t, data, derivC, thisSchemeData);
       % Need to store the modified schemeData structure.
       if(iscell(schemeData))
         schemeData{1} = thisSchemeData;
@@ -169,6 +170,9 @@ fprintf("modified termLaxFriedrichs \n");
     otherwise
       error('hamFunc must return either one or two output arguments.');
   end
+
+  % changed
+  %max(schemeData.q_mode_arr)
   
   % Lax-Friedrichs dissipative stabilization.
   [ diss, stepBound ] = ...

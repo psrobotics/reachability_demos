@@ -1,4 +1,4 @@
-function [data, tau, extraOuts] = ...
+function [data, tau, extraOuts, schemeData] = ...
     HJIPDE_solve_hybrid(data0, tau, schemeData, compMethod, extraArgs)
 % [data, tau, extraOuts] = ...
 %   HJIPDE_solve(data0, tau, schemeData, minWith, extraargs)
@@ -1033,8 +1033,9 @@ for i = istart:length(tau)
         
         % Solve hamiltonian and apply to value function (y) to get updated
         % value function
-        [tNow, y] = feval(integratorFunc, schemeFunc, [tNow tau(i)], y, ...
+        [tNow, y , schemeData] = feval(integratorFunc, schemeFunc, [tNow tau(i)], y, ...
             integratorOptions, schemeData);
+       % chaged, add scheme data to return q mode
         
         
         

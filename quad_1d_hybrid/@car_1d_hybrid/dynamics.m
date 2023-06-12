@@ -30,11 +30,14 @@ if iscell(x)
 % set dyn for non-cell element
 else
   dx = zeros(obj.nx, 1);
+  if iscell(u)
+      u_num = u{1}
+  end
   switch q_mode
       case 1 % operation mode 1
-          dx(1) = 4*u.*is_in_obst(x, obj.obst_range) + d(1);
+          dx(1) = 4*u_num.*is_in_obst(x, obj.obst_range) + d(1);
       case 2 % operation mode 2
-          dx(1) = 1*u + d(1);
+          dx(1) = 1*u_num + d(1);
   end
 
 end
@@ -58,7 +61,12 @@ end
 
 %%
 function in_obst_arr = is_in_obst(x, obst_range)
-x_value = x{1}; % x is a 1x1 cell with double matrix inside
+if iscell(x)
+    x_value = x{1}; % x is a 1x1 cell with double matrix inside
+else
+    x_value = x;
+end
+
 in_state_size = size(x_value);
 in_obst_arr = ones(in_state_size);
 

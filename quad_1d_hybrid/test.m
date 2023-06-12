@@ -1,6 +1,6 @@
-clc;
-clear;
-
+clc; clear;
+close all; warning off;
+%%
 addpath(genpath('..\toolbox\helperOC\'));
 addpath(genpath('..\toolbox\ToolboxLS\'));
 addpath(genpath('..\mod_hj_pde_solver\'));
@@ -93,6 +93,7 @@ t_arr = [];
 ctr_arr = [];
 brs_t_ind_arr = [];
 dt = tau(2)-tau(1);
+q_mode_arr = [];
 
 for t_n = tau
     t_arr = [t_arr, t_n];
@@ -123,6 +124,7 @@ for t_n = tau
     % get current q mode
     q_mode_index = ceil((x_n - grid_min)/dx_grid);
     q_mode_n = returned_q_mode_arr(q_mode_index);
+    q_mode_arr=[q_mode_arr,q_mode_n];
     % sim next step
     [~, x_next_arr] = ode113(@(t,x) car_1d.dynamics(t, x, opti_ctr_t, 0, q_mode_n), [0 dt], x_n);
     x_next = x_next_arr(end,:);
@@ -131,4 +133,42 @@ for t_n = tau
     fprintf('simulating timestep %f\n', t_n);
 end
 
-%% gen desired traj based on 
+%% quad mpc sim
+[world_params, body_params, ctr_params, path] = hardware_params();
+
+addpath(path.casadi);
+import casadi.*;
+
+%% Get dynamics
+[dyn_f] = get_srb_dynamics(world_params, body_params, path);
+
+%%
+ctr_params.x_init_tar_val = [0; 0; 0; x_init; 0; ctr_params.init_z]; % init state
+ctr_params.dx_init_tar_val = [0; 0; 0; 1; 0; 0]; % init d state
+ctr_params.x_final_tar_val = [0; 0; 0; TAR_x; 0; ctr_params.init_z]; % final target state r p y; x y z
+ctr_params.dx_final_tar_val = [0; 0; 0; 1; 0; 0];
+
+ctr_params.normal_height = 0.33;
+ctr_params.obst_height = 0.18;
+
+%% Form the mpc problem
+[mpc_v, mpc_c, mpc_p] = form_mpc_prob(world_params, body_params, ctr_params, dyn_f, path);
+
+[boundray_v] = add_state_boundaries(mpc_v, mpc_c, world_params, body_params, ctr_params, path);
+%% modify desired body traj based on brt sim result, use tar x velosity and desied body height
+[ref_traj_v] = fpp_planner_local(world_params, body_params, ctr_params, path, x_arr, q_mode_arr);
+
+%% Slove the NLP prob
+sol = mpc_p.solver('x0',ref_traj_v.x0,...
+                   'lbx',boundray_v.lbx,...
+                   'ubx',boundray_v.ubx,...
+                   'lbg',boundray_v.lbg,...
+                   'ubg',boundray_v.ubg,...
+                   'p',ref_traj_v.p);
+               
+  %% Unpack data
+  [x_sol, f_sol, fp_l_sol, fp_g_sol] = unpacks_sol(sol, body_params, ctr_params, path);
+  
+  %% we only sim until it reaches target
+  brt_sim_i_len = length(q_mode_arr);
+  rbt_anime(x_sol,f_sol,fp_g_sol,[],brt_sim_i_len*dt,brt_sim_i_len);

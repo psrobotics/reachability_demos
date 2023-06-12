@@ -5,9 +5,9 @@ len = size_arr(2);
 
 figure(1);
 
-%  v = VideoWriter('jump_d3','MPEG-4');
-%  v.FrameRate = N/T;
-%  open(v);
+ v = VideoWriter('obst_hybrid_2','MPEG-4');
+ v.FrameRate = N/T;
+ open(v);
 
 for k = 1:len-1
     x_t = x_arr(:,k);
@@ -17,6 +17,7 @@ for k = 1:len-1
     fp_w_4 = fp_arr(10:12,k);
     
     r_mat = rot_zyx(x_t(1:3));
+    r_mat_n = rot_zyx([0,0,0]);
     
     foot_pos = fp_arr(:,k);
     feetforce_used = f_arr(:,k)*0.5;
@@ -27,10 +28,19 @@ for k = 1:len-1
     grid on;
     
     view(-34,33);
-    axis([-0.5,4,-1,1,0,1.2]);
+    % camera follows the robot
+    %axis([x_t(4)-1.2,x_t(4)+1.2,-1,1,0,1.2]);
+    axis([-4,4,-1,1,0,1.2]);
     
     % plot body
-    plot_cube(r_mat,0.34,0.2,0.08,+x_t(4:6)+r_mat*[0;0;0.02]);
+    plot_cube(r_mat,0.34,0.2,0.08,x_t(4:6)+r_mat*[0;0;0.02],'black',2);
+    % plot obst
+    for x_i = -1:0.2:0-0.2
+        plot_cube(r_mat_n,0.2,1,0.4,[x_i ;0;0.15+0.4/2+0.2],'red',2);
+    end
+    % plot target set
+    plot_cube(r_mat_n,1,1,1,[3.5;0;0.5],'green',2);
+
     % plot foot
     plot3(fp_w_1(1),fp_w_1(2),fp_w_1(3),'o','linewidth',1.2,'color','b','markersize',3);
     plot3(fp_w_2(1),fp_w_2(2),fp_w_2(3),'o','linewidth',1.2,'color','b','markersize',3);
@@ -107,12 +117,12 @@ for k = 1:len-1
     pause(T/N);
     hold on;
     
-%       frame = getframe(gcf);
-%       writeVideo(v,frame);
+      frame = getframe(gcf);
+      writeVideo(v,frame);
     
 end
 
-%  close(v);
+ close(v);
 
 end
 

@@ -1,7 +1,7 @@
 function uOpt = optCtrl(obj, ~, ~, deriv, uMode)
 % uOpt = optCtrl(obj, t, y, deriv, uMode)
 
-fprintf('the speeed range is %f \n', obj.uRange);
+%fprintf('the speeed range is %f \n', obj.uRange);
 
 %% Input processing
 if nargin < 5
@@ -26,6 +26,5 @@ else
   error('Unknown uMode!')
 end
 
-uOpt{1}
 
 end

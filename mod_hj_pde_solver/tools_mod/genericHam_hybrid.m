@@ -88,12 +88,9 @@ end
 % select the smaller one, min over row and return the smallest col
 [hamValue, q_opti] = min(hamValue_arr, [], 2); 
 
-size(q_opti);
-size(hamValue);
-
 % store thr q opti, need to return this
-schemeData.q_mode_arr(:,schemeData.q_index) = q_opti;
-schemeData.q_index = schemeData.q_index+1;
+schemeData.q_mode_arr = q_opti;
+%schemeData.q_index = schemeData.q_index+1;
 
 % other user selected case, ?
 if isprop(dynSys, 'TIdim') && ~isempty(dynSys.TIdim)

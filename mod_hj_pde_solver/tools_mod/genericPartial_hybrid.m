@@ -56,7 +56,7 @@ end
   
 %% Compute alpha
 
-alpha_arr = zeros(schemeData.grid.N,dynSys.q_mode_num);
+alpha_arr = [];
 
 for q_mode = 1:dynSys.q_mode_num
 dxUU = dynSys.dynamics(t, schemeData.grid.xs, uU, dU, q_mode);
@@ -66,7 +66,7 @@ dxLU = dynSys.dynamics(t, schemeData.grid.xs, uL, dU, q_mode);
 alpha_tmp = max(abs(dxUU{dim}), abs(dxUL{dim}));
 alpha_tmp = max(alpha_tmp, abs(dxLL{dim}));
 alpha_tmp = max(alpha_tmp, abs(dxLU{dim}));
-alpha_arr(:,q_mode) = alpha_tmp;
+alpha_arr = [alpha_arr, alpha_tmp];
 end
 
 alpha = max(alpha_arr,[],'all'); % pick smallest t-step across all possible cases

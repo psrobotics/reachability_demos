@@ -70,7 +70,7 @@ end
 % changed to select opti q mode, and store it
 % calcuate hamvalue for different q mode
 
-hamValue_arr = zeros([schemeData.grid.N,dynSys.q_mode_num]); % each col is a q mode, we have 2 modes in this demo
+hamValue_arr = []; % each col is a q mode, we have 2 modes in this demo
 
 for q_mode = 1:dynSys.q_mode_num
 
@@ -80,13 +80,14 @@ for q_mode = 1:dynSys.q_mode_num
         fprintf('ham value %d\n', q_mode);
         hamValue_tmp = hamValue_tmp + deriv{i}.*dx_tmp{i};
     end
-
-    hamValue_arr(:,q_mode) = hamValue_tmp;
+    
+    % add new hamvalue for this operation mode
+    hamValue_arr = cat(dynSys.nx+1, hamValue_arr, hamValue_tmp); 
 
 end
 
 % select the smaller one, min over row and return the smallest col
-[hamValue, q_opti] = min(hamValue_arr, [], 2); 
+[hamValue, q_opti] = min(hamValue_arr,[],dynSys.nx+1); %min over the q mode dim
 
 % store thr q opti, need to return this
 schemeData.q_mode_arr = q_opti;

@@ -77,6 +77,4 @@ for i = 1:in_state_size
     end
 end
 
-%in_obst_arr
-
 end

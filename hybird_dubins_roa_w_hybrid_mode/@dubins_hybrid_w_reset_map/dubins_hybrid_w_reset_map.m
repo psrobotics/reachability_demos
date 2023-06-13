@@ -1,4 +1,4 @@
-classdef hybird_mod_dubins_car < DynSys
+classdef dubins_hybrid_w_reset_map < DynSys
     properties
         uMax
         uMin        
@@ -7,9 +7,15 @@ classdef hybird_mod_dubins_car < DynSys
         dims
         params
         reset_map_type
+    
+        % range of obstacle for y axis
+        obst_range % 1x2 vec
+        % number of all operation modes   
+        q_mode_num
+
     end
     methods
-        function obj = hybird_mod_dubins_car(dims, x, params, reset_map_type)
+        function obj = dubins_hybrid_w_reset_map(dims, x, params, reset_map_type, q_mode_num, obst_range)
             if nargin < 1 || isempty(dims)
                 dims = 1:3;
             end
@@ -38,6 +44,10 @@ classdef hybird_mod_dubins_car < DynSys
             obj.x = x;
             obj.dims  = dims;
             obj.nx = length(dims);
+
+            % copy the operation mode and obstcale ranges
+            obj.obst_range = obst_range;
+            obj.q_mode_num = q_mode_num;
         end
     end
 end

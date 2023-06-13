@@ -13,6 +13,9 @@ M = 40;
 params.grid_dx1 = 8 * R / (2 * M);
 params.grid_dx3 = 2*pi/(2*M);
 
+% x range -8 ~ 8
+% y range -8 ~ 8
+
 params.grid_min = [-4*R + params.grid_dx1; -4*R + params.grid_dx1; -pi];
 params.grid_max = [-4*R + params.grid_dx1*2*M; -4*R + params.grid_dx1*2*M; pi];
 N = [2*M, 2*M, 2*M]; % M/2 corresponds to pi/2 for 3rd axes
@@ -50,11 +53,14 @@ params.alpha = 1.0;
 schemeData.grid = grid;
 schemeData.uMode = 'min'; % control trying to min the cost fcn, reachable set
 
-schemeData.dynSys = hybird_mod_dubins_car([], [], params, 'parametrized'); % select dyn model
+ctr_modes = 2;
+obst_range = [1,2];
+schemeData.dynSys = dubins_hybrid_w_reset_map...
+    ([], [], params, 'parametrized', ctr_modes, obst_range); % select dyn model
 
 schemeData.accuracy = 'high';
-schemeData.hamFunc = @genericHam;
-schemeData.partialFunc = @genericPartial;
+schemeData.hamFunc = @genericHam_hybrid; % changed
+schemeData.partialFunc = @genericPartial_hybrid; % changed
 [schemeData.dissFunc, ~, schemeData.derivFunc] = ...
     getNumericalFuncs('global', schemeData.accuracy);
 
@@ -79,7 +85,7 @@ alpha = params.alpha; % nonlinear reset para
 schemeData.reset_map = get_reset_map_parametrized(grid, params);
 %% cal brt
 [data, tau, extraOuts] = ...
-        HJIPDE_solve_with_reset_map(data0, tau, schemeData, 'minVWithL', HJIextraArgs);
+        HJIPDE_solve_hybrid_w_reset_map(data0, tau, schemeData, 'minVWithL', HJIextraArgs); % changed
 %% get optimal ctr
 %derivatives = computeGradients(grid, data(:,:,:,end));
 %safety_controller = schemeData.dynSys.optCtrl([], [], derivatives, 'min'); % min signed dist
@@ -157,7 +163,7 @@ function [dissFunc, integratorFunc, derivFunc] = getNumericalFuncs(dissType, acc
 % Dissipation
 switch(dissType)
     case 'global'
-        dissFunc = @artificialDissipationGLF;
+        dissFunc = @artificialDissipationGLF_hybrid; % changed
     case 'local'
         dissFunc = @artificialDissipationLLF;
     case 'locallocal'
@@ -176,10 +182,10 @@ switch(accuracy)
         integratorFunc = @odeCFL2;
     case 'high'
         derivFunc = @upwindFirstENO3;
-        integratorFunc = @odeCFL3;
+        integratorFunc = @odeCFL3_hybrid; % changed
     case 'veryHigh'
         derivFunc = @upwindFirstWENO5;
-        integratorFunc = @odeCFL3;
+        integratorFunc = @odeCFL3_hybrid; % changed
     otherwise
         error('Unknown accuracy level %s', accuracy);
 end

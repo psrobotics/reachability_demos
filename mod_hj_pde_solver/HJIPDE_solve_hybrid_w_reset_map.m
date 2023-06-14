@@ -1019,6 +1019,7 @@ for i = istart:length(tau)
       % Apply the reset map if required
       if isfield(schemeData, 'reset_map')
         y = y(schemeData.reset_map);
+        % schemeData.q_mode_arr haven't been generated here
       end
     
     tNow = tau(i-1);
@@ -1197,6 +1198,8 @@ for i = istart:length(tau)
         % Apply the reset map if required
         if isfield(schemeData, 'reset_map')
           y = y(schemeData.reset_map);
+          % also swap operation mode based on reset map, test
+          % schemeData.q_mode_arr = schemeData.q_mode_arr(schemeData.reset_map)
         end
         
         

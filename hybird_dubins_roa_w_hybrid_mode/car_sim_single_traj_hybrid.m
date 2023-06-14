@@ -1,4 +1,4 @@
-function [x_arr, ctr_arr, t_arr, brs_t_ind_arr] = car_sim_single_traj(car_sys, x_init, grid, data, tau, params)
+function [x_arr, ctr_arr, t_arr, brs_t_ind_arr] = car_sim_single_traj_hybrid(car_sys, x_init, grid, data, tau, q_mode_data, params)
 % sim opti traj of the car
 x_arr = x_init;
 t_arr = [];
@@ -32,8 +32,23 @@ for t_n = tau
     % get optimal control
     opti_ctr_t = car_sys.optCtrl([],[],deriv_n,'min');
     ctr_arr = [ctr_arr, opti_ctr_t];
+    % get current q mode
+    %q_mode_data_i = reshape(q_mode_data, grid.shape);
+
+    % poor grid resolution, ~
+    q_mode_n = 1;
+    if((x_n(2)>1)&&(x_n(2)<2))
+        q_mode_n = 2;
+    end
+    q_mode_n
+    x_n(2)
+
+    % q_index = ceil((x_n - grid.min)./grid.dx);
+    % q_index = q_index'
+    % q_mode_n = q_mode_data(q_index(1),q_index(2),q_index(3))
+
     % sim next step
-    x_next = car_sys.updateStateWithResetMap(opti_ctr_t, dt, x_n);
+    x_next = car_sys.update_state_hybrid_w_reset_map(opti_ctr_t, dt, x_n, 0, q_mode_n);
     x_arr = [x_arr, x_next];
 
     fprintf('simulating timestep %f\n', t_n);

@@ -52,11 +52,12 @@ params.alpha = 1.0;
 %% solver setup
 schemeData.grid = grid;
 schemeData.uMode = 'min'; % control trying to min the cost fcn, reachable set
-
-ctr_modes = 2;
-obst_range = [1,2];
+%%
+params.ctr_modes = 2;
+params.obst_range = [1,2];
+%%
 schemeData.dynSys = dubins_hybrid_w_reset_map...
-    ([], [], params, 'parametrized', ctr_modes, obst_range); % select dyn model
+    ([], [], params, 'parametrized', params.ctr_modes, params.obst_range); % select dyn model
 
 schemeData.accuracy = 'high';
 schemeData.hamFunc = @genericHam_hybrid; % changed
@@ -75,7 +76,7 @@ HJIextraArgs.visualize.deleteLastPlot = true; % delete previous plot as you upda
 %% sim time
 t0 = 0;
 dt = 0.1;
-t_max = 3;
+t_max = 8;
 tau = t0:dt:t_max;
 %data0 = target_function; % pre-defined target set value function (generated from python script)
 
@@ -84,16 +85,18 @@ alpha = params.alpha; % nonlinear reset para
 %% get reset map
 schemeData.reset_map = get_reset_map_parametrized(grid, params);
 %% cal brt
-[data, tau, extraOuts] = ...
+[data, tau, extraOuts, schemeData] = ...
         HJIPDE_solve_hybrid_w_reset_map(data0, tau, schemeData, 'minVWithL', HJIextraArgs); % changed
 %% get optimal ctr
 %derivatives = computeGradients(grid, data(:,:,:,end));
 %safety_controller = schemeData.dynSys.optCtrl([], [], derivatives, 'min'); % min signed dist
-%%
+%% get q_mode_arr
+q_mode_data = schemeData.q_mode_arr; 
+%% save data
 data_file_str = strcat('data_with_reset_map_alpha_', num2str(100*alpha));
 data_file_str = strcat(data_file_str, '_t_');
 data_file_str = strcat(data_file_str, num2str(t_max));
-save(strcat(data_file_str, '.mat'), 'grid', 'data0', 'params', 'data', 'tau'); % save data
+save(strcat(data_file_str, '.mat'), 'grid', 'data0', 'params', 'data', 'tau', 'q_mode_data'); % save data
 
 %% get rest map indector
 function reset_map = get_reset_map_parametrized(grid, params)
@@ -105,7 +108,7 @@ function reset_map = get_reset_map_parametrized(grid, params)
     ind = 1:prod(N); % how many elements in grid, = N(1)*N(2)*N(3)
     [I1, I2, I3] = ind2sub(N, ind); % generate 3d indector https://www.mathworks.com/help/matlab/ref/ind2sub.html
     
-    idx_y_0  = find(abs(grid.vs{2}) < eps) % when car hits y axis
+    idx_y_0  = find(abs(grid.vs{2}) < eps); % when car hits y axis
     %idx_alpha_pi = find(abs(grid.vs{2}-pi)<eps); % if grid value (2), = pi or 0, when y axis = 0
     %idx_y_0 = find(abs(grid.vs{2})<eps);
 

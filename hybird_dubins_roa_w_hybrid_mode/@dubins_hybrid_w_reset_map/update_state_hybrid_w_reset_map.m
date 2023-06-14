@@ -1,4 +1,4 @@
-function x_out = updateStateWithResetMap(obj, u, T, x0, d)
+function x_out = update_state_hybrid_w_reset_map(obj, u, T, x0, d, q_mode)
 
 % simulate and update the car state, with pre-defined reset map
 % x1 = updateState(obj, u, T, x0, d)
@@ -63,9 +63,9 @@ end
 odeOpts = odeset('Events', @(t,x)dubins_reset_event(t,x));
     
 if isempty(d)
-  [ts, x] = ode113(@(t,x) obj.dynamics(t, x, u), [0 T], x0, odeOpts);
+  [ts, x] = ode113(@(t,x) obj.dynamics(t, x, u, [], q_mode), [0 T], x0, odeOpts);
 else
-  [~, x] = ode113(@(t,x) obj.dynamics(t, x, u, d), [0 T], x0, odeOpts);
+  [ts, x] = ode113(@(t,x) obj.dynamics(t, x, u, d, q_mode), [0 T], x0, odeOpts);
 end
 
 % Update the state, state history, control, and control history

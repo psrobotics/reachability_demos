@@ -83,12 +83,10 @@ for q_mode = 1:dynSys.q_mode_num
     
     % add new hamvalue for this operation mode
     hamValue_arr = cat(dynSys.nx+1, hamValue_arr, hamValue_tmp); 
-
 end
 
 % select the smaller one, min over row and return the smallest col
 [hamValue, q_opti] = min(hamValue_arr,[],dynSys.nx+1); %min over the q mode dim
-
 % store thr q opti, need to return this
 schemeData.q_mode_arr = q_opti;
 %schemeData.q_index = schemeData.q_index+1;

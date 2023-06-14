@@ -26,6 +26,7 @@ for k = 1:len
 
     x_t = x_arr(:,k);
     r_mat = rot_zyx([0,0,x_t(3)]);
+    r_mat_n = rot_zyx([0,0,0]);
 
     view(30,40);
     %view(0,90)
@@ -35,11 +36,14 @@ for k = 1:len
     for rad = 0:0.2:2*pi
         r_mat_t = rot_zyx([0,0,rad]);
         plot_cube(r_mat_t,params.tar_r/1.414,params.tar_r/1.414,1.6,...
-            [params.tar_pos(1);params.tar_pos(2);0.8],[146,36,40]./255,1);
+            [params.tar_pos(1);params.tar_pos(2);0.8],'green',1);
     end
 
     % plot current car pos
     plot_cube(r_mat,1.1,0.6,0.2,[x_t(1);x_t(2);0.8],'black',2);
+
+    % plot obst
+    plot_cube(r_mat_n,16,1,0.2,[0;1.5;0.8],'red',2);
 
     % plot past traj
     for i = 1:k
@@ -48,18 +52,16 @@ for k = 1:len
         plot_cube(r_mat_old,0.2,0.2,0.2,[x_i(1);x_i(2);0.8],[107,76,154]./255,1);
     end
 
-    [X,Y] = meshgrid(g.min(1) : params.grid_dx1*4: g.max(1) ,...
-                      0: params.grid_dx1*4: g.max(2) - params.grid_dx1*3);
-
-    size(X)
-    size(Y)
-
-    [Xq,Yq] = meshgrid(g.min(1): params.grid_dx1: g.max(1),...
-                      0+params.grid_dx1: params.grid_dx1: g.max(2));
-    BRT_2d_layer_high_res = griddata(X,Y,brs_arr(:,:,k)',Xq,Yq,"cubic");
-
-    surf(Xq,Yq,-1*BRT_2d_layer_high_res);
-    colormap summer;
+    % sim the surface
+    % [X,Y] = meshgrid(g.min(1) : params.grid_dx1*4: g.max(1) ,...
+    %                   0: params.grid_dx1*4: g.max(2) - params.grid_dx1*3);
+    % 
+    % [Xq,Yq] = meshgrid(g.min(1): params.grid_dx1: g.max(1),...
+    %                   0+params.grid_dx1: params.grid_dx1: g.max(2));
+    % BRT_2d_layer_high_res = griddata(X,Y,brs_arr(:,:,k)',Xq,Yq,"cubic");
+    % 
+    % surf(Xq,Yq,-1*BRT_2d_layer_high_res);
+    % colormap summer;
 
     pause(params.dt);
     hold on;

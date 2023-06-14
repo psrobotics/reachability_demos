@@ -76,7 +76,7 @@ HJIextraArgs.visualize.deleteLastPlot = true; % delete previous plot as you upda
 %% sim time
 t0 = 0;
 dt = 0.1;
-t_max = 8;
+t_max = 3;
 tau = t0:dt:t_max;
 %data0 = target_function; % pre-defined target set value function (generated from python script)
 

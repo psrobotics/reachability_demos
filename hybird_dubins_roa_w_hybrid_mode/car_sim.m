@@ -12,7 +12,7 @@ alpha = 1.0;
 % alpha = 1.0;
 
 data_file_str = strcat('data_with_reset_map_alpha_', num2str(100*alpha));
-data_file_str = strcat(data_file_str, '_t_8');
+data_file_str = strcat(data_file_str, '_t_3');
 load(data_file_str);
 params.alpha = alpha;
 

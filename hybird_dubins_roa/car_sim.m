@@ -12,7 +12,7 @@ alpha = 1.0;
 % alpha = 1.0;
 
 data_file_str = strcat('data_with_reset_map_alpha_', num2str(100*alpha));
-data_file_str = strcat(data_file_str, '_t_6');
+data_file_str = strcat(data_file_str, '_t_4');
 load(data_file_str);
 params.alpha = alpha;
 
@@ -22,11 +22,11 @@ params.tar_pos = [0,4];
 params.tar_r = 0.5;
 
 %% create a set of random init states
-test_case_num = 20;
+test_case_num = 4;
 x0_arr = zeros(3,test_case_num);
 x0_arr(1,:) = (7.5-(-7.5)).*rand(test_case_num,1) - 7.5;
-x0_arr(2,:) = (7.5-0).*rand(test_case_num,1) - 0;
-x0_arr(3,:) = (pi-(-pi)).*rand(test_case_num,1) - pi;
+x0_arr(2,:) = (3-0.5).*rand(test_case_num,1) - 0.5;
+x0_arr(3,:) = -1*((-pi/2+0.2-(-pi/2-0.2)).*rand(test_case_num,1) - (-pi/2-0.2));
 
 for test_i = 1:test_case_num
 

@@ -69,14 +69,15 @@ HJIextraArgs.visualize.deleteLastPlot = true; % delete previous plot as you upda
 %% sim time
 t0 = 0;
 dt = 0.1;
-t_max = 3;
+t_max = 4;
 tau = t0:dt:t_max;
 %data0 = target_function; % pre-defined target set value function (generated from python script)
 
 alpha = params.alpha; % nonlinear reset para
 
 %% get reset map
-schemeData.reset_map = get_reset_map_parametrized(grid, params);
+%schemeData.reset_map = get_reset_map_parametrized(grid, params);
+schemeData.reset_map = get_reset_map_mod(grid, [], params);
 %% cal brt
 [data, tau, extraOuts] = ...
         HJIPDE_solve_with_reset_map(data0, tau, schemeData, 'minVWithL', HJIextraArgs);
@@ -89,7 +90,81 @@ data_file_str = strcat(data_file_str, '_t_');
 data_file_str = strcat(data_file_str, num2str(t_max));
 save(strcat(data_file_str, '.mat'), 'grid', 'data0', 'params', 'data', 'tau'); % save data
 
-%% get rest map indector
+%% get reset map mode ver
+function reset_map = get_reset_map_mod(grid, dynsys, params)
+
+% define all state jump functions
+x1_post_f = @(x) -params.R*(abs(x)/params.R)^params.alpha * sign(x);
+x2_post_f = @(x) x;
+x3_post_f = @x_f3;
+state_fcn_arr = {x1_post_f; x2_post_f; x3_post_f};
+
+N = grid.N; % grid num vector
+ind = 1:prod(N); % how many elements in grid, = N(1)*N(2)*N(3)
+[I1, I2, I3] = ind2sub(N, ind); % generate 3d indector https://www.mathworks.com/help/matlab/ref/ind2sub.html
+
+I1_reset = I1; % indectors for reset map dim1
+I2_reset = I2; % dim2
+I3_reset = I3; % dim3
+
+for j = ind
+
+    i_tmp = [I1(j); I2(j); I3(j)];
+    i_post = i_tmp;
+
+    if resetmap_trigger_event(grid, i_tmp)
+        x_tmp = index2state(grid,i_tmp)
+        x_post = x_tmp;
+        for k = 1:length(state_fcn_arr)
+            x_post(k) = state_fcn_arr{k}(x_tmp(k));
+        end
+        i_post = state2index(grid, x_post)
+    end
+
+    I1_reset(j) = i_post(1);
+    I2_reset(j) = i_post(2);
+    I3_reset(j) = i_post(3);
+end
+
+% switch back to 1d indector
+reset_map = sub2ind(N, I1_reset, I2_reset, I3_reset); 
+end
+
+function is_reset = resetmap_trigger_event(grid, i_t)
+% check if the reset event has been triggered based on current index
+% 1 - reset event, 0 - others
+is_reset = 0;
+eps = 1e-5;
+x_ref = index2state(grid, i_t);
+% if based on ref state
+if abs(x_ref(2))<eps && sin(x_ref(3))<eps
+    is_reset = 1;
+end
+
+end
+
+function x3_post = x_f3(x3)
+if x3 <= 0
+   x3_post = x3 + pi;
+else
+   x3_post = x3 - pi;
+end
+end
+
+function i_t = state2index(grid, x_t)
+% convert current state to grid index 
+grid_dx = (grid.max-grid.min)./grid.N;
+i_t = ceil((x_t-grid.min)./grid_dx);
+end
+
+function x_t = index2state(grid, i_t)
+% convert current grid index to state
+grid_dx = (grid.max-grid.min)./grid.N;
+x_t = i_t.*grid_dx + grid.min;
+end
+
+
+%% get reset map indector
 function reset_map = get_reset_map_parametrized(grid, params)
 
     eps = 1e-5; % *~0.2, based on grid resolution
@@ -133,6 +208,10 @@ function reset_map = get_reset_map_parametrized(grid, params)
                 i1_post = params.index_max(1);
             end
 
+            % if i1_post > params.index_max(1)
+            %     i1_post = params.index_max(1);
+            % end
+
             theta_bar_current = grid.vs{3}(i3) % get current x value
             if theta_bar_current <= 0
                 theta_bar_current = theta_bar_current + pi
@@ -145,6 +224,11 @@ function reset_map = get_reset_map_parametrized(grid, params)
             elseif i3_post > params.index_max(3)
                 i3_post = params.index_max(3);
             end
+
+            % if i3_post > params.index_max(3)
+            %     i3_post = params.index_max(3);
+            % end
+
             I1_reset(j) = i1_post;
             I2_reset(j) = i2_post;
             I3_reset(j) = i3_post;

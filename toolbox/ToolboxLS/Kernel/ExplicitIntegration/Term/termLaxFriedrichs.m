@@ -158,7 +158,7 @@ function [ ydot, stepBound, schemeData ] = termLaxFriedrichs(t, y, schemeData)
       % If hamFunc explicitly has two outputs OR if Matlab cannot determine
       % how many outputs it has (eg: hamFunc is an anonymous function or
       % object method), then we assume two output arguments.
-      [ ham thisSchemeData ] = feval(thisSchemeData.hamFunc, t, data, derivC, thisSchemeData);
+      [ ham, thisSchemeData ] = feval(thisSchemeData.hamFunc, t, data, derivC, thisSchemeData);
       % Need to store the modified schemeData structure.
       if(iscell(schemeData))
         schemeData{1} = thisSchemeData;

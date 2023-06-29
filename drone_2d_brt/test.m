@@ -51,11 +51,17 @@ HJIextraArgs.visualize.initialValueSet = 1;
 HJIextraArgs.visualize.figNum = 1; %set figure number
 HJIextraArgs.visualize.deleteLastPlot = false; %delete previous plot as you update
 
+compMethod = 'minVWithL';
+% if doing minVWithL, we need to set a external value function, in this
+% case we just set this as the target set we defiend earlier
+HJIextraArgs.targetFunction = data0;
+
 % uncomment if you want to see a 2D slice
 % HJIextraArgs.visualize.plotData.plotDims = [1 1]; %plot x, y
 HJIextraArgs.visualize.viewAngle = [0,90]; % view 2D
 
+
 %[data, tau, extraOuts] = ...
 % HJIPDE_solve(data0, tau, schemeData, minWith, extraArgs)
 [data, tau2, ~] = ...
-  HJIPDE_solve(data0, tau, schemeData, 'zero', HJIextraArgs);
+  HJIPDE_solve(data0, tau, schemeData, compMethod, HJIextraArgs);

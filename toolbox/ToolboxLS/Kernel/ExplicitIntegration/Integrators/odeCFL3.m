@@ -70,7 +70,7 @@ function [ t, y, schemeData ] = ...
   
   %---------------------------------------------------------------------------
   % Make sure we have the default options settings
-  if((nargin < 4) | isempty(options))
+  if((nargin < 4) || isempty(options))
     options = odeCFLset;
   end
   

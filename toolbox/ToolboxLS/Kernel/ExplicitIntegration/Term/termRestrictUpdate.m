@@ -74,6 +74,7 @@ function [ ydot, stepBound, schemeData ] = termRestrictUpdate(t, y, schemeData)
 
   %---------------------------------------------------------------------------
   % Get the unrestricted update.
+  % thisSchemeData.innerFunc = termLaxfriedrichs
   [ unRestricted, stepBound, innerData ] = ...
                               feval(thisSchemeData.innerFunc, t, y, innerData);
 
